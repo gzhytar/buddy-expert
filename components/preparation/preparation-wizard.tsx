@@ -7,7 +7,7 @@ import {
 } from "@/lib/preparation/actions";
 import type { ReflectionLearningEcho } from "@/lib/reflection/actions";
 import { LastReflectionLearningEcho } from "@/components/preparation/last-reflection-learning-echo";
-import type { RolePhaseGroup } from "@/lib/queries/orientation";
+import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";

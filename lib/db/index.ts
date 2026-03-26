@@ -1,25 +1,16 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import "server-only";
+
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+
 import * as schema from "./schema";
-import { mkdirSync, existsSync } from "fs";
-import { dirname } from "path";
 
-function resolveSqlitePath(): string {
-  const url = process.env.DATABASE_URL ?? "file:./data/buddy.db";
-  if (url.startsWith("file:")) {
-    return url.slice("file:".length);
-  }
-  return url;
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error(
+    "DATABASE_URL is not set. Use a Neon Postgres connection string (see .env.example).",
+  );
 }
 
-const sqlitePath = resolveSqlitePath();
-const dir = dirname(sqlitePath);
-if (!existsSync(dir)) {
-  mkdirSync(dir, { recursive: true });
-}
-
-const client = new Database(sqlitePath);
-client.pragma("journal_mode = WAL");
-client.pragma("foreign_keys = ON");
-
-export const db = drizzle(client, { schema });
+const sql = neon(databaseUrl);
+export const db = drizzle(sql, { schema });

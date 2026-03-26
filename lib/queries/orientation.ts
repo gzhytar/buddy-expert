@@ -1,6 +1,12 @@
+import "server-only";
+
 import { db } from "@/lib/db";
 import { consultingRoles, principles } from "@/lib/db/schema";
 import { asc } from "drizzle-orm";
+
+import type { RolePhaseGroup } from "./orientation-types";
+
+export type { RolePhaseGroup };
 
 export async function getPrinciplesOrdered() {
   return db
@@ -15,12 +21,6 @@ export async function getRolesOrdered() {
     .from(consultingRoles)
     .orderBy(asc(consultingRoles.phaseKey), asc(consultingRoles.sortOrder));
 }
-
-export type RolePhaseGroup = {
-  phaseKey: string;
-  phaseLabel: string;
-  roles: (typeof consultingRoles.$inferSelect)[];
-};
 
 export async function getRolesGroupedByPhase(): Promise<RolePhaseGroup[]> {
   const rows = await getRolesOrdered();

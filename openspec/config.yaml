@@ -53,10 +53,9 @@ context: |
   - Formuláře a validace: React Hook Form + Zod
   - Autentizace: Auth.js (NextAuth v5)
   - Data: ORM Prisma nebo Drizzle
-  - Databáze: SQLite (soubor) jen pro lokální vývoj a raný prototyp. Produkce na Vercelu musí
-    používat Neon (Postgres) — serverless nemá trvalý disk pro SQLite. Od začátku preferuj
-    schéma kompatibilní s Postgresem kvůli migraci na Neon.
-  - Úložiště do budoucna: Neon (Postgres); při nasazení změň DATABASE_URL a spusť migrace.
+  - Databáze: PostgreSQL přes Neon (`DATABASE_URL`); runtime používá `@neondatabase/serverless` a
+    Drizzle `neon-http`. Migrace: `npm run db:migrate` (před buildem na Vercelu). Lokální návod:
+    docs/databaze-neon.md.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

@@ -1,6 +1,6 @@
 /**
  * Idempotent seed: demo user, 10 principles, 16 roles (JIC karty).
- * Run: npm run db:seed
+ * Run: npm run db:seed (načte .env přes scripts/run-seed.mjs)
  * Password: SEED_DEMO_PASSWORD env or default `buddy-dev-1`
  */
 import bcrypt from "bcryptjs";

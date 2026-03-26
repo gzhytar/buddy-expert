@@ -1,18 +1,18 @@
 import {
   integer,
+  pgTable,
   primaryKey,
-  sqliteTable,
   text,
-} from "drizzle-orm/sqlite-core";
+} from "drizzle-orm/pg-core";
 
-export const users = sqliteTable("users", {
+export const users = pgTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name"),
   passwordHash: text("password_hash").notNull(),
 });
 
-export const principles = sqliteTable("principles", {
+export const principles = pgTable("principles", {
   id: text("id").primaryKey(),
   sortOrder: integer("sort_order").notNull(),
   title: text("title").notNull(),
@@ -25,7 +25,7 @@ export const principles = sqliteTable("principles", {
   fieldStories: text("field_stories").notNull().default(""),
 });
 
-export const consultingRoles = sqliteTable("consulting_roles", {
+export const consultingRoles = pgTable("consulting_roles", {
   id: text("id").primaryKey(),
   phaseKey: text("phase_key").notNull(),
   phaseLabel: text("phase_label").notNull(),
@@ -49,7 +49,7 @@ export const consultingRoles = sqliteTable("consulting_roles", {
   imagePath: text("image_path"),
 });
 
-export const preparationSessions = sqliteTable("preparation_sessions", {
+export const preparationSessions = pgTable("preparation_sessions", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -65,7 +65,7 @@ export const preparationSessions = sqliteTable("preparation_sessions", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const preparationRoles = sqliteTable(
+export const preparationRoles = pgTable(
   "preparation_roles",
   {
     preparationId: text("preparation_id")
@@ -83,7 +83,7 @@ export const preparationRoles = sqliteTable(
   }),
 );
 
-export const reflectionSessions = sqliteTable("reflection_sessions", {
+export const reflectionSessions = pgTable("reflection_sessions", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -102,7 +102,7 @@ export const reflectionSessions = sqliteTable("reflection_sessions", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const reflectionPrinciples = sqliteTable(
+export const reflectionPrinciples = pgTable(
   "reflection_principles",
   {
     reflectionId: text("reflection_id")
@@ -117,7 +117,7 @@ export const reflectionPrinciples = sqliteTable(
   }),
 );
 
-export const reflectionRoleCalibrations = sqliteTable(
+export const reflectionRoleCalibrations = pgTable(
   "reflection_role_calibrations",
   {
     reflectionId: text("reflection_id")

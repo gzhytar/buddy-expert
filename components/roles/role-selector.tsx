@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { ConsultingRole } from "@/lib/db/schema";
 import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
-import type { RolePhaseGroup } from "@/lib/queries/orientation";
+import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
 import { roleSummaryForList } from "@/lib/consulting-roles/card-content";
 import { Checkbox } from "@/components/ui/checkbox";

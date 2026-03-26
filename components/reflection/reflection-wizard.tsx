@@ -6,7 +6,7 @@ import {
   type ReflectionDetail,
 } from "@/lib/reflection/actions";
 import type { Principle } from "@/lib/db/schema";
-import type { RolePhaseGroup } from "@/lib/queries/orientation";
+import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";

@@ -3,7 +3,7 @@ import type { ReflectionDetail } from "@/lib/reflection/actions";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
 import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
 import type { Principle } from "@/lib/db/schema";
-import type { RolePhaseGroup } from "@/lib/queries/orientation";
+import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlanVsRealitySummary } from "@/components/reflection/plan-vs-reality-summary";
