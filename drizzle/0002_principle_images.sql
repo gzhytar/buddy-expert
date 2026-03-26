@@ -1,0 +1,1 @@
+ALTER TABLE `principles` ADD `image_path` text;

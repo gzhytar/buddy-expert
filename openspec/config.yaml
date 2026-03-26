@@ -1,0 +1,69 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+context: |
+  Zdroje pravdy (v pořadí):
+  1. Primární: artefakty OpenSpec v openspec/ (specs, changes, delty) — považuj je za závazné
+     pro to, co stavíme a jak vymezujeme rozsah práce.
+  2. Sekundární: ProductSpecification.md (česky) — celý příběh produktu, flow, napětí a kontext
+     stakeholderů. Používej pro pozadí, příklady, doménové formulace a soulad, když OpenSpec
+     něco neříká nebo je neúplný; nesmí přebít dohodnuté OpenSpec specifikace.
+
+  Jazyk (povinně):
+  - Výchozí jazyk produktu i artefaktů OpenSpec (specs, návrhy, designy, úkoly, delta specy a
+    ostatní dokumentace změn pod openspec/) je čeština (cs).
+  - Viditelné texty v UI, štítky, chyby, e-maily a nápověda musí být česky, pokud projekt
+    výslovně nerozhodne jinak.
+  - Doménové termíny a názvy rolí/principů sjednocuj s českým ProductSpecification.md; ten soubor
+    je referencí pro českou produktovou řeč.
+
+  Doména (shrnutí z ProductSpecification.md — detaily ověř v tom souboru):
+  - Cílové skupiny: experti JIC (primární); buddyové / peer podpora; účastníci konzilií;
+    stakeholderi onboardingu a kvality.
+  - Účel: Adaptivní onboarding, neustálé zlepšování kvality konzultací, soulad s misí JIC a
+    servisním rámcem, strukturovaný seberozvoj reflexí, peer podporou a sdíleným učením —
+    praktický průvodce a každodenní kognitivní opora, ne dohled ani compliance checklist.
+  - Pozicování: Vrstva reflexe a učení nad reálnou konzultační prací. Nenahrazuje CRM/YTracker
+    (záznamy, klientská data, trace). Doplňuje YTracker: YTracker = institucionální záznam;
+    tento produkt = reflexe, kalibrace, učení, soulad.
+  - Klíčové koncepty: (1) Deset principů konzultování pod značkou JIC — rámec kvality, ne tvrdý
+    checklist; jako výukový obsah, optika reflexe, kotva diskuse. (2) Šestnáct situačních rolí
+    konzultanta ve čtyřech fázích — jazyk přípravy/reflexe, kalibrace chování; výběr rolí a
+    intenzita (nedostatek / vyváženo / přehřátí).
+  - Mechanismy učení: Supervize (individuální reflexe nad dokončenými konzultacemi); buddy
+    podpora (1:1 peer); konzultační konzilium (skupinová diskuse případu). Jádro produktu, ne
+    volitelné doplňky.
+  - Základní smyčka: Příprava → konzultace → reflexe → vstup od peerů → lepší další příprava.
+    Příprava: posílit vybrané role, stlumit jiné, nastavit záměr. Reflexe: principy, použité role,
+    kalibrace, soulad s rámcem, krátká poznámka k učení; volitelně předat buddyovi nebo do konzilia.
+  - Principy produktu (design): Podpora, ne kontrola; reflexe místo byrokracie; principy místo
+    scénářů; každodenní relevance; individualita v rámci společného rámce; učení praxí;
+    psychologická bezpečnost.
+  - Co produkt není (hrubě): Plné LMS, UX jen jako tvrdý checklist, managerský dohled, formální
+    hodnocení výkonu jako hlavní režim, plný repozitář konzultačního toolboxu v prvních fázích.
+  - Napětí k respektování: Individualita vs konzistence; podpora vs kontrola; reflexe vs zátěž;
+    teorie vs praxe; akce vs nadměrná analýza. Rizika: vnímaný dohled, tření, chování „odškrtni
+    položku“, přetížení koncepty, odtržení od workflow.
+
+  Technologický stack (MVP / prototyp):
+  - Framework: Next.js (App Router), TypeScript
+  - Hosting: Vercel
+  - UI: moderní responzivní dostupný web — Tailwind CSS, primitiva Radix UI
+  - Formuláře a validace: React Hook Form + Zod
+  - Autentizace: Auth.js (NextAuth v5)
+  - Data: ORM Prisma nebo Drizzle
+  - Databáze: SQLite (soubor) jen pro lokální vývoj a raný prototyp. Produkce na Vercelu musí
+    používat Neon (Postgres) — serverless nemá trvalý disk pro SQLite. Od začátku preferuj
+    schéma kompatibilní s Postgresem kvůli migraci na Neon.
+  - Úložiště do budoucna: Neon (Postgres); při nasazení změň DATABASE_URL a spusť migrace.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

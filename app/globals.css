@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: oklch(99% 0.008 95);
+  --foreground: oklch(22% 0.04 260);
+  --muted: oklch(96% 0.01 95);
+  --muted-foreground: oklch(45% 0.02 260);
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(22% 0.04 260);
+  --primary: oklch(38% 0.11 260);
+  --primary-foreground: oklch(98% 0.01 260);
+  --secondary: oklch(94% 0.02 260);
+  --secondary-foreground: oklch(22% 0.04 260);
+  --accent: oklch(94% 0.03 95);
+  --accent-foreground: oklch(22% 0.04 260);
+  --border: oklch(90% 0.02 260);
+  --ring: oklch(38% 0.11 260);
+
+  /* JIC konzultantské karty — akcent fáze (levý okraj karty) */
+  --jic-phase-zakazka-border: oklch(52% 0.14 235);
+  --jic-phase-diagnostika-border: oklch(55% 0.14 75);
+  --jic-phase-vedeni-border: oklch(48% 0.18 290);
+  --jic-phase-tvorba-border: oklch(52% 0.16 25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(16% 0.03 260);
+    --foreground: oklch(96% 0.01 260);
+    --muted: oklch(22% 0.03 260);
+    --muted-foreground: oklch(72% 0.02 260);
+    --card: oklch(18% 0.03 260);
+    --card-foreground: oklch(96% 0.01 260);
+    --primary: oklch(78% 0.09 260);
+    --primary-foreground: oklch(16% 0.03 260);
+    --secondary: oklch(24% 0.03 260);
+    --secondary-foreground: oklch(96% 0.01 260);
+    --accent: oklch(24% 0.03 260);
+    --accent-foreground: oklch(96% 0.01 260);
+    --border: oklch(30% 0.03 260);
+    --ring: oklch(78% 0.09 260);
+
+    --jic-phase-zakazka-border: oklch(72% 0.12 235);
+    --jic-phase-diagnostika-border: oklch(78% 0.12 85);
+    --jic-phase-vedeni-border: oklch(72% 0.14 290);
+    --jic-phase-tvorba-border: oklch(72% 0.14 25);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-step-in: step-in 0.28s var(--ease-out);
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @theme inline {
+    --animate-step-in: none;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply min-h-full bg-background font-sans text-foreground antialiased;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.animate-step-in {
+  animation: var(--animate-step-in);
+}
