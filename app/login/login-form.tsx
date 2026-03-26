@@ -27,7 +27,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/reflections";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/orientation";
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 

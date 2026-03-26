@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { href: "/reflections", label: "Reflexe" },
-  { href: "/preparations", label: "Přípravy" },
   { href: "/orientation", label: "Orientace" },
+  { href: "/preparations", label: "Přípravy" },
+  { href: "/reflections", label: "Reflexe" },
 ];
 
 export function SiteHeader() {
@@ -24,7 +24,7 @@ export function SiteHeader() {
         <div className="flex h-14 items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-4 sm:gap-6">
             <Link
-              href="/reflections"
+              href="/orientation"
               className="font-display truncate text-lg font-semibold tracking-tight text-foreground transition-opacity duration-200 hover:opacity-80 motion-reduce:transition-none"
             >
               buddY expert

@@ -15,7 +15,7 @@ export default auth((req) => {
   }
 
   if (isLogin && loggedIn) {
-    return NextResponse.redirect(new URL("/reflections", req.nextUrl));
+    return NextResponse.redirect(new URL("/orientation", req.nextUrl));
   }
 
   if (!loggedIn && !isLogin) {
