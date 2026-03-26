@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
 import { PRINCIPLE_IMAGE_PATHS } from "../lib/data/principle-images";
 import { ROLE_IMAGE_PATHS } from "../lib/data/role-images";
 import { JIC_ROLE_CARDS } from "../lib/data/jic-role-cards";
-import { db } from "../lib/db";
+import { db } from "../lib/db/neon";
 import {
   consultingRoles,
   principles,

@@ -1,6 +1,6 @@
 # Konzultační reflexe
 
-Kanónické požadavky sloučené z delt `refine-mvp-ux-slice` (MVP slice 1, EN) a `plan-vs-reality-loop` (záměr vs. realita, CS). Pořadí: nejdřív základ reflexe, potom rozšíření o vazbu na přípravu.
+Kanónické požadavky sloučené z delt `refine-mvp-ux-slice` (MVP slice 1, EN), `plan-vs-reality-loop` (záměr vs. realita, CS) a `learning-loop-prep-echo` (cesta k přípravě po reflexi). Pořadí: nejdřív základ reflexe, potom rozšíření o vazbu na přípravu a navigaci smyčky učení.
 
 ## Requirements
 
@@ -120,3 +120,17 @@ Systém MUSÍ umožnit expertovi dodatečně propojit již vytvořenou reflexi s
 
 - **WHEN** expert v detailu reflexe vybere ze seznamu svých nereflektovaných příprav "Strategický workshop - Alfa"
 - **THEN** systém propojí tyto dva záznamy a zobrazí porovnání záměru s realitou
+
+### Requirement: Cesta k nové přípravě po dokončení reflexe
+
+Po úspěšném dokončení reflexe systém MUSÍ uživateli nabídnout jasnou primární navigaci k založení **nové přípravy před konzultací** (existující flow přípravy), aby byla podpořena produktová smyčka „reflexe → další příprava“. Text výzvy MUSÍ být formulovaný podpůrně, ne evaluativně.
+
+#### Scenario: Po dokončení reflexe je k dispozici odkaz na přípravu
+
+- **WHEN** expert dokončí reflexi a systém potvrdí úspěch
+- **THEN** na následující obrazovce nebo v potvrzovacím bloku je viditelný odkaz nebo tlačítko vedoucí na vytvoření nové přípravy
+
+#### Scenario: Dokončení bez ztráty stávajícího chování
+
+- **WHEN** expert dokončí reflexi
+- **THEN** systém stále splní všechny stávající požadavky na uložení dokončené reflexe a přístup k vlastním reflexím

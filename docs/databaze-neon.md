@@ -21,7 +21,7 @@
 | `npm run db:seed` | Demo uživatel, principy a role |
 | `npm run db:studio` | Drizzle Studio (potřebuje platný `DATABASE_URL`) |
 
-Skript `db:migrate` načte `.env.local` nebo `.env`, pokud existují; na Vercelu se použije `DATABASE_URL` z nastavení projektu.
+Skripty `db:migrate`, `db:push` a `db:studio` spouští Drizzle přes `scripts/run-drizzle-with-env.mjs`, který nejdřív načte `.env.local` / `.env` (na Vercelu už proměnné v procesu jsou, soubor není nutný).
 
 ## Vercel
 
