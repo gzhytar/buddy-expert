@@ -2,6 +2,8 @@
  * Veřejné cesty k ilustracím situčních rolí (`public/…`).
  * Soubory vložte do `public/`; názvy musí odpovídat hodnotám níže.
  */
+export const ROLE_IMAGE_MISSING_HINT =
+  "Do public/ vložte soubor podle mapování v lib/data/role-images.ts.";
 export const ROLE_IMAGE_PATHS: Record<string, string> = {
   "r-situator": "/roles_situator.png",
   "r-strazce-mandatu": "/roles_strazce-mandatu.png",

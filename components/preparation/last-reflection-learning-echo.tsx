@@ -20,8 +20,7 @@ export function LastReflectionLearningEcho({ echo }: Props) {
           hodnocení ani úkol.
         </p>
         <p className="text-xs text-muted-foreground">
-          <span className="sr-only">Dokončeno </span>
-          {dateLabel}
+          Dokončeno {dateLabel}
           {echo.consultationLabel?.trim() ? (
             <>
               {" · "}

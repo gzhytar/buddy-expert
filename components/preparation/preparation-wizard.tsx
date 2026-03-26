@@ -38,6 +38,7 @@ export function PreparationWizard({
   preparationId,
   initial,
   roleGroups,
+  learningEcho,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -191,6 +192,10 @@ export function PreparationWizard({
         </h1>
       </header>
 
+      {learningEcho ? (
+        <LastReflectionLearningEcho echo={learningEcho} />
+      ) : null}
+
       {error ? (
         <p
           className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
@@ -289,3 +294,8 @@ export function PreparationWizard({
               {pending ? "Ukládání…" : "Dokončit přípravu"}
             </Button>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}

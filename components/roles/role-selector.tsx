@@ -2,7 +2,9 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ConsultingRole } from "@/lib/db/schema";
+import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
 import type { RolePhaseGroup } from "@/lib/queries/orientation";
+import { PrincipleIllustration } from "@/components/principles/principle-illustration";
 import { roleSummaryForList } from "@/lib/consulting-roles/card-content";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -79,6 +81,13 @@ function renderRoleRows(
               onCheckedChange={(v) => props.onToggleRole(r.id, v === true)}
               aria-labelledby={`r-label-${r.id}`}
             />
+            <PrincipleIllustration
+              src={r.imagePath}
+              alt={`Ilustrace k roli: ${r.name}`}
+              variant="inline"
+              missingFileHint={ROLE_IMAGE_MISSING_HINT}
+              className="rounded-md border-0 shadow-none"
+            />
             <div className="min-w-0 flex-1">
               <Label
                 id={`r-label-${r.id}`}
@@ -149,6 +158,13 @@ function renderRoleRows(
                 props.onSetPolarity(r.id, v === true ? "strengthen" : null)
               }
               aria-labelledby={`prep-r-label-${r.id}`}
+            />
+            <PrincipleIllustration
+              src={r.imagePath}
+              alt={`Ilustrace k roli: ${r.name}`}
+              variant="inline"
+              missingFileHint={ROLE_IMAGE_MISSING_HINT}
+              className="rounded-md border-0 shadow-none"
             />
             <div className="min-w-0">
               <Label

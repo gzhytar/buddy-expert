@@ -22,7 +22,10 @@ export default async function OrientationRolesPage() {
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
           Šestnáct rolí ve čtyřech fázích podle pracovní verze JIC karet (líc:
           stručná definice; rub: co role dělá, užitečné projevy a rizika při
-          přepálení). Při reflexi zaznamenáváte, zda byla role{" "}
+          přepálení). Ilustrace rolí jsou v{" "}
+          <code className="rounded bg-muted px-1 text-xs">public/</code> (mapování v{" "}
+          <code className="rounded bg-muted px-1 text-xs">lib/data/role-images.ts</code>
+          ). Při reflexi zaznamenáváte, zda byla role{" "}
           <strong className="text-foreground">podužitá</strong>,{" "}
           <strong className="text-foreground">vyvážená</strong> nebo{" "}
           <strong className="text-foreground">přepálená</strong>.
@@ -47,9 +50,12 @@ export default async function OrientationRolesPage() {
               </p>
             </div>
             <ul className="grid list-none gap-6 p-0 sm:grid-cols-1">
-              {g.roles.map((r) => (
+              {g.roles.map((r, i) => (
                 <li key={r.id}>
-                  <ConsultingRoleCard role={r} />
+                  <ConsultingRoleCard
+                    role={r}
+                    illustrationPriority={i < 2}
+                  />
                 </li>
               ))}
             </ul>

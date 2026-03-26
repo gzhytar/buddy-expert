@@ -14,12 +14,29 @@ export default async function ReflectionsListPage({ searchParams }: Props) {
   return (
     <div className="space-y-8">
       {params?.complete ? (
-        <p
-          className="rounded-md border border-border bg-muted/50 px-4 py-3 text-sm text-foreground animate-step-in"
+        <Card
+          className="border-primary/25 bg-muted/30 animate-step-in"
           role="status"
         >
-          Reflexe byla uložena jako dokončená. Kdykoliv můžete začít další.
-        </p>
+          <CardHeader className="space-y-2 pb-2">
+            <CardTitle className="text-base font-semibold">
+              Reflexe je uložená
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Až budete připraveni na další schůzku, můžete si záměr znovu
+              nastavit v přípravě — vaše poučení uvidíte tam jako připomínku
+              jen pro vás.
+            </p>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2 pt-0">
+            <Button asChild>
+              <Link href="/preparations/new">Nová příprava</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/reflections">Zpět na seznam reflexí</Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : null}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">

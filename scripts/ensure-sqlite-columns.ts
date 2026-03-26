@@ -52,6 +52,22 @@ try {
     );
     console.log("ensure-sqlite-columns: added principles.field_stories");
   }
+
+  const rolesTable = client
+    .prepare(
+      "SELECT 1 FROM sqlite_master WHERE type='table' AND name='consulting_roles'",
+    )
+    .get();
+  if (rolesTable) {
+    const roleCols = client.prepare("PRAGMA table_info(consulting_roles)").all() as {
+      name: string;
+    }[];
+    const roleNames = new Set(roleCols.map((c) => c.name));
+    if (!roleNames.has("image_path")) {
+      client.exec("ALTER TABLE consulting_roles ADD COLUMN image_path text");
+      console.log("ensure-sqlite-columns: added consulting_roles.image_path");
+    }
+  }
 } finally {
   client.close();
 }

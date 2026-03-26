@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReflectionDetail } from "@/lib/reflection/actions";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
+import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
 import type { Principle } from "@/lib/db/schema";
 import type { RolePhaseGroup } from "@/lib/queries/orientation";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,9 @@ type Props = {
 export function ReflectionReadOnly({ data, principles, roleGroups }: Props) {
   const { session, principleIds, roles, preparation } = data;
   const pById = Object.fromEntries(principles.map((p) => [p.id, p]));
+  const roleById = Object.fromEntries(
+    roleGroups.flatMap((g) => g.roles.map((r) => [r.id, r])),
+  );
   const rMap = Object.fromEntries(
     roleGroups.flatMap((g) => g.roles.map((r) => [r.id, r.name])),
   );
@@ -119,20 +123,33 @@ export function ReflectionReadOnly({ data, principles, roleGroups }: Props) {
           <CardTitle className="text-lg">Role a kalibrace</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2 text-sm">
-            {roles.map((row) => (
-              <li
-                key={row.roleId}
-                className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border/60 py-2 last:border-0"
-              >
-                <span className="font-medium text-foreground">
-                  {rMap[row.roleId] ?? row.roleId}
-                </span>
-                <span className="text-muted-foreground">
-                  {calibrationLabels[row.calibration] ?? row.calibration}
-                </span>
-              </li>
-            ))}
+          <ul className="flex list-none flex-col gap-3 p-0">
+            {roles.map((row) => {
+              const role = roleById[row.roleId];
+              const title = role?.name ?? rMap[row.roleId] ?? row.roleId;
+              return (
+                <li
+                  key={row.roleId}
+                  className="flex flex-wrap items-center gap-3 rounded-md border border-border/60 bg-muted/10 px-2 py-2"
+                >
+                  <PrincipleIllustration
+                    src={role?.imagePath}
+                    alt={`Ilustrace: ${title}`}
+                    variant="inline"
+                    missingFileHint={ROLE_IMAGE_MISSING_HINT}
+                    className="rounded-md border-0 shadow-none"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <span className="text-sm font-medium text-foreground">
+                      {title}
+                    </span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {calibrationLabels[row.calibration] ?? row.calibration}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </CardContent>
       </Card>
