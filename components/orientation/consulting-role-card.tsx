@@ -20,117 +20,122 @@ export function ConsultingRoleCard({
   const risks = parseBulletList(role.riskBullets);
   const alt = `Ilustrace k roli: ${role.name}`;
 
+  const hasDetailBlocks = useful.length > 0 || risks.length > 0;
+
   return (
     <article
       aria-labelledby={`role-title-${role.id}`}
       className={cn(
-        "overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-shadow duration-200 motion-reduce:transition-none",
+        "overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-200 motion-reduce:transition-none",
         "border-l-4",
+        "hover:shadow-md",
+        "focus-within:ring-2 focus-within:ring-ring/60 focus-within:ring-offset-2 focus-within:ring-offset-background motion-reduce:focus-within:ring-0 motion-reduce:focus-within:ring-offset-0",
         phaseLeftBorderClass(role.phaseKey),
         className,
       )}
     >
-      <div className="flex flex-col gap-0 sm:flex-row sm:items-stretch">
-        <div className="sm:w-[min(42%,280px)] sm:shrink-0 sm:border-r sm:border-border/70 sm:bg-muted/10">
-          <PrincipleIllustration
-            src={role.imagePath}
-            alt={alt}
-            variant="sidebar"
-            missingFileHint={ROLE_IMAGE_MISSING_HINT}
-            className="rounded-none border-0 shadow-none"
-            priority={illustrationPriority}
-          />
-        </div>
-        <div className="min-w-0 flex-1">
-          <header className="border-b border-border/70 bg-muted/25 px-5 py-4 dark:bg-muted/15">
-            <div className="min-w-0 space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                {role.cardCode ? (
-                  <span className="inline-flex items-center rounded-md border border-border bg-background px-2 py-0.5 font-mono text-xs font-semibold tracking-wide text-foreground shadow-sm">
-                    {role.cardCode}
-                  </span>
-                ) : null}
-                {role.cardIndex != null ? (
-                  <span className="text-xs font-medium tabular-nums text-muted-foreground">
-                    {String(role.cardIndex).padStart(2, "0")}/16
-                  </span>
-                ) : null}
-              </div>
-              <h3
-                id={`role-title-${role.id}`}
-                className="font-display text-lg font-semibold tracking-tight text-foreground"
-              >
-                {role.name}
-              </h3>
-              {role.summaryLine ? (
-                <p className="text-sm font-medium leading-relaxed text-foreground/90">
-                  {role.summaryLine}
-                </p>
-              ) : null}
-            </div>
-          </header>
-
-          <div className="space-y-5 px-5 py-5">
-            {role.whatItDoes ? (
-              <section aria-labelledby={`what-${role.id}`} className="space-y-2">
-                <h4
-                  id={`what-${role.id}`}
-                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                >
-                  Co role dělá
-                </h4>
-                <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
-                  {role.whatItDoes}
-                </p>
-              </section>
-            ) : null}
-
-            {useful.length > 0 ? (
-              <section aria-labelledby={`useful-${role.id}`} className="space-y-2">
-                <h4
-                  id={`useful-${role.id}`}
-                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                >
-                  Užitečné projevy
-                </h4>
-                <ul className="list-inside list-disc space-y-1.5 text-sm leading-relaxed text-foreground/88 marker:text-primary">
-                  {useful.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {risks.length > 0 ? (
-              <section
-                aria-labelledby={`risks-${role.id}`}
-                className={cn(
-                  "space-y-2 rounded-lg border border-amber-500/30 px-4 py-3",
-                  "bg-amber-500/[0.07] dark:bg-amber-500/[0.1]",
-                )}
-              >
-                <h4
-                  id={`risks-${role.id}`}
-                  className="text-xs font-semibold uppercase tracking-wider text-amber-900/85 dark:text-amber-200/95"
-                >
-                  Rizika při přepálení
-                </h4>
-                <ul className="list-inside list-disc space-y-1.5 text-sm leading-relaxed text-amber-950/88 dark:text-amber-50/88 marker:text-amber-600 dark:marker:text-amber-400">
-                  {risks.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              </section>
+      <div className="flex flex-col">
+        {/* HEADER AREA */}
+        <header className="flex flex-row items-center justify-between gap-4 sm:gap-5 border-b border-border/60 bg-muted/10 px-4 py-3 sm:px-5 sm:py-4 dark:bg-muted/5">
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <h3
+              id={`role-title-${role.id}`}
+              className="font-display text-base font-semibold tracking-tight text-foreground sm:text-lg"
+            >
+              {role.name}
+            </h3>
+            {role.summaryLine ? (
+              <p className="text-[13px] font-medium leading-snug text-foreground/80 sm:max-w-xl">
+                {role.summaryLine}
+              </p>
             ) : null}
           </div>
 
-          <footer className="border-t border-border/60 bg-muted/10 px-5 py-2.5 dark:bg-muted/5">
-            <p className="text-[11px] leading-snug text-muted-foreground">
-              Konzultantské karty JIC — pracovní verze (líc / rub). Síla role: obsah,
-              lidé, delivery.
-            </p>
-          </footer>
+          {/* IMAGE */}
+          <div className="w-[160px] sm:w-[180px] lg:w-[200px] shrink-0">
+            <PrincipleIllustration
+              src={role.imagePath}
+              alt={alt}
+              variant="card"
+              missingFileHint={ROLE_IMAGE_MISSING_HINT}
+              className="rounded-lg border-border/50 shadow-sm"
+              priority={illustrationPriority}
+            />
+          </div>
+        </header>
+
+        {/* CONTENT AREA */}
+        <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
+          {role.whatItDoes ? (
+            <section aria-labelledby={`what-${role.id}`} className="space-y-1.5 max-w-4xl">
+              <h4
+                id={`what-${role.id}`}
+                className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]"
+              >
+                Co role dělá
+              </h4>
+              <p className="text-[13px] leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                {role.whatItDoes}
+              </p>
+            </section>
+          ) : null}
+
+          {hasDetailBlocks ? (
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6 lg:items-start max-w-5xl">
+              {useful.length > 0 ? (
+                <section
+                  aria-labelledby={`useful-${role.id}`}
+                  className="space-y-2"
+                >
+                  <h4
+                    id={`useful-${role.id}`}
+                    className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]"
+                  >
+                    Užitečné projevy
+                  </h4>
+                  <ul className="list-outside list-disc space-y-1 pl-4 text-[13px] leading-snug text-foreground/88 marker:text-primary/70">
+                    {useful.map((line) => (
+                      <li key={line} className="pl-0.5">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+
+              {risks.length > 0 ? (
+                <section
+                  aria-labelledby={`risks-${role.id}`}
+                  className={cn(
+                    "space-y-2 rounded-xl border border-amber-500/20 px-3 py-3 sm:px-4 sm:py-3.5",
+                    "bg-amber-500/[0.04] dark:bg-amber-500/[0.08]",
+                  )}
+                >
+                  <h4
+                    id={`risks-${role.id}`}
+                    className="text-[10px] font-semibold uppercase tracking-wider text-amber-900/85 dark:text-amber-200/95 sm:text-[11px]"
+                  >
+                    Rizika při přepálení
+                  </h4>
+                  <ul className="list-outside list-disc space-y-1 pl-4 text-[13px] leading-snug text-amber-950/88 dark:text-amber-50/88 marker:text-amber-500/60 dark:marker:text-amber-400/60">
+                    {risks.map((line) => (
+                      <li key={line} className="pl-0.5">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </div>
+          ) : null}
         </div>
+
+        <footer className="border-t border-border/60 bg-muted/10 px-4 py-2 sm:px-5 dark:bg-muted/5">
+          <p className="text-[10px] leading-snug text-muted-foreground">
+            Konzultantské karty JIC — pracovní verze (líc / rub). Síla role: obsah,
+            lidé, delivery.
+          </p>
+        </footer>
       </div>
     </article>
   );

@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
 export default {
+  secret: process.env.AUTH_SECRET,
   providers: [],
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: { signIn: "/login" },

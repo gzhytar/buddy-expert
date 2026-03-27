@@ -147,13 +147,37 @@ export default async function ReflectionsListPage({ searchParams }: Props) {
                         {r.consultationLabel?.trim() || "Nepojmenovaná konzultace"}
                       </CardTitle>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Aktualizováno{" "}
-                        {new Date(r.updatedAt).toLocaleString("cs-CZ", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
+                        {r.status === "complete" ? (
+                          <>
+                            Dokončeno{" "}
+                            {new Date(r.updatedAt).toLocaleString("cs-CZ", {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })}
+                          </>
+                        ) : (
+                          <>
+                            Upraveno{" "}
+                            {new Date(r.updatedAt).toLocaleString("cs-CZ", {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })}
+                          </>
+                        )}
                         {" · "}
-                        <span className="capitalize">{r.status === 'draft' ? 'rozpracováno' : 'dokončeno'}</span>
+                        <span className="capitalize">
+                          {r.status === "draft" ? "rozpracováno" : "dokončeno"}
+                        </span>
+                        {r.occurredAt?.trim() ? (
+                          <>
+                            {" · "}
+                            Konzultace{" "}
+                            {new Date(r.occurredAt).toLocaleString("cs-CZ", {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })}
+                          </>
+                        ) : null}
                       </p>
                     </div>
                   </CardHeader>

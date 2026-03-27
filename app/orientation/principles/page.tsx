@@ -21,15 +21,10 @@ export default async function OrientationPrinciplesPage() {
         </h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
           Rámec kvality pro reflexi — nikoliv rigidní checklist. U každého principu
-          najdete krátké tipy a ilustrativní příběh z praxe; ilustrace jsou v{" "}
-          <code className="rounded bg-muted px-1 text-xs">public/</code> (mapování v{" "}
-          <code className="rounded bg-muted px-1 text-xs">
-            lib/data/principle-images.ts
-          </code>
-          ). Chybějící obrázek zobrazí náhradní rámeček.
+          najdete krátké tipy a ilustrativní příběh z praxe.
         </p>
       </header>
-      <ol className="list-none space-y-6 p-0">
+      <ol className="list-none space-y-4 p-0">
         {list.map((p, i) => (
           <li key={p.id} className="scroll-mt-20">
             <OrientationPrincipleCard principle={p} index={i} />

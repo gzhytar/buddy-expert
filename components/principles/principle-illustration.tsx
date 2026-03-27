@@ -12,6 +12,8 @@ type Props = {
   alt: string;
   /** card = samostatný blok; sidebar = úzký sloupec u textu; inline = náhled ve wizardu */
   variant?: "card" | "sidebar" | "inline";
+  /** Nižší min. výška u sidebar — kompaktní karty (např. role) */
+  density?: "default" | "compact";
   className?: string;
   priority?: boolean;
   /** Text náhrady, když není nastavena cesta k souboru (např. role vs. principy). */
@@ -22,11 +24,20 @@ export function PrincipleIllustration({
   src,
   alt,
   variant = "card",
+  density = "default",
   className,
   priority = false,
   missingFileHint = DEFAULT_MISSING_FILE_HINT,
 }: Props) {
   const [broken, setBroken] = useState(false);
+  const sidebarMin =
+    density === "compact"
+      ? "min-h-[132px] sm:min-h-[176px]"
+      : "min-h-[160px] sm:min-h-[220px]";
+  const sidebarPlaceholderMin =
+    density === "compact"
+      ? "min-h-[132px] sm:min-h-[176px]"
+      : "min-h-[160px] sm:min-h-[200px]";
 
   if (!src || broken) {
     return (
@@ -35,8 +46,7 @@ export function PrincipleIllustration({
           "flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 text-center text-muted-foreground",
           variant === "card" &&
             "aspect-[4/3] w-full min-h-[140px] sm:min-h-[180px]",
-          variant === "sidebar" &&
-            "h-full min-h-[160px] w-full sm:min-h-[200px]",
+          variant === "sidebar" && cn("h-full w-full", sidebarPlaceholderMin),
           variant === "inline" && "size-20 shrink-0 sm:size-24",
           className,
         )}
@@ -57,9 +67,9 @@ export function PrincipleIllustration({
     <div
       className={cn(
         "overflow-hidden rounded-lg border border-border/80 bg-[oklch(99%_0.01_95)] shadow-sm dark:bg-card",
-        variant === "card" && "aspect-[4/3] w-full",
+        variant === "card" && "relative aspect-[4/3] w-full",
         variant === "sidebar" &&
-          "flex min-h-[160px] w-full items-center justify-center sm:min-h-[220px]",
+          cn("flex w-full items-center justify-center", sidebarMin),
         variant === "inline" &&
           "flex size-20 shrink-0 items-center justify-center sm:size-24",
         className,
@@ -73,8 +83,11 @@ export function PrincipleIllustration({
         decoding="async"
         onError={() => setBroken(true)}
         className={cn(
-          "max-h-full w-full object-contain object-center p-2",
-          variant === "inline" && "max-h-[5.5rem] p-1",
+          variant === "card" &&
+            "absolute inset-0 h-full w-full object-contain object-center p-0",
+          variant === "sidebar" && "max-h-full w-full object-contain object-center p-2",
+          variant === "inline" &&
+            "max-h-[5.5rem] w-full object-contain object-center p-1",
         )}
       />
     </div>

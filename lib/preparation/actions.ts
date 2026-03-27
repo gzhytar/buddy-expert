@@ -82,6 +82,34 @@ export async function getPreparationForUser(
   };
 }
 
+/** Všechny přípravy uživatele (draft i dokončené), nejnovější první. */
+export async function listAllPreparationsForUser() {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+
+  const linkedRows = await db
+    .select({ preparationId: reflectionSessions.preparationId })
+    .from(reflectionSessions)
+    .where(isNotNull(reflectionSessions.preparationId));
+
+  const linkedIds = new Set(
+    linkedRows
+      .map((r) => r.preparationId)
+      .filter((id): id is string => id != null),
+  );
+
+  const rows = await db
+    .select()
+    .from(preparationSessions)
+    .where(eq(preparationSessions.userId, session.user.id))
+    .orderBy(desc(preparationSessions.updatedAt));
+
+  return rows.map((p) => ({
+    ...p,
+    hasLinkedReflection: linkedIds.has(p.id),
+  }));
+}
+
 /** Přípravy, které ještě nejsou navázané na žádnou reflexi */
 export async function listWaitingPreparationsForUser() {
   const session = await auth();
