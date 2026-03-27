@@ -11,31 +11,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
-import type { AlignmentLikert } from "@/lib/reflection/validation";
 import { RoleSelector } from "@/components/roles/role-selector";
 import { OriginalIntentPanel } from "@/components/reflection/original-intent-panel";
+import { cn } from "@/lib/utils";
 
 const STEPS = [
   "Konzultace",
   "Principy",
   "Role",
-  "Soulad s rámcem",
   "Poznámka k učení",
 ] as const;
-
-const alignmentOptions: { value: AlignmentLikert; label: string }[] = [
-  { value: "strongly_aligned", label: "Silný soulad" },
-  { value: "aligned", label: "Převážně v souladu" },
-  { value: "mixed", label: "Smíšené / částečný soulad" },
-  { value: "strained", label: "Napjaté nebo mimo rámec" },
-  { value: "unsure", label: "Zatím nevím" },
-];
 
 function toDatetimeLocalValue(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -92,12 +81,6 @@ export function ReflectionWizard({
     }
     return m;
   });
-  const [alignmentLikert, setAlignmentLikert] = useState<AlignmentLikert | "">(
-    (initial.session.alignmentLikert as AlignmentLikert | null) ?? "",
-  );
-  const [alignmentNote, setAlignmentNote] = useState(
-    initial.session.alignmentNote ?? "",
-  );
   const [learningNote, setLearningNote] = useState(
     initial.session.learningNote ?? "",
   );
@@ -125,8 +108,6 @@ export function ReflectionWizard({
       occurredAt,
       principleIds,
       roles,
-      alignmentLikert: alignmentLikert || undefined,
-      alignmentNote: alignmentNote.trim() || undefined,
       learningNote: learningNote.trim() || undefined,
     };
   }, [
@@ -137,8 +118,6 @@ export function ReflectionWizard({
     principleIds,
     selectedRoleIds,
     calibrationByRole,
-    alignmentLikert,
-    alignmentNote,
     learningNote,
   ]);
 
@@ -210,7 +189,6 @@ export function ReflectionWizard({
       const res = await completeReflection({
         ...base,
         preparationId: base.preparationId,
-        alignmentLikert: base.alignmentLikert as AlignmentLikert,
         learningNote: base.learningNote ?? "",
         principleIds: base.principleIds ?? [],
         roles: base.roles ?? [],
@@ -355,40 +333,43 @@ export function ReflectionWizard({
             <p className="text-sm text-muted-foreground">
               Které principy byly pro tuto konzultaci nejrelevantnější?
             </p>
-            <ul className="space-y-3">
+            <ul className="list-none space-y-3 p-0">
               {principles.map((p) => {
-                const checked = principleIds.includes(p.id);
+                const selected = principleIds.includes(p.id);
+                const titleId = `p-title-${p.id}`;
                 return (
-                  <li
-                    key={p.id}
-                    className="flex items-start gap-3 rounded-md border border-border/80 bg-card p-3"
-                  >
-                    <Checkbox
-                      id={`p-${p.id}`}
-                      checked={checked}
-                      onCheckedChange={(v) =>
-                        togglePrinciple(p.id, v === true)
-                      }
-                      aria-labelledby={`p-label-${p.id}`}
-                    />
-                    <PrincipleIllustration
-                      src={p.imagePath}
-                      alt={`Ilustrace: ${p.title}`}
-                      variant="inline"
-                      className="rounded-md"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <Label
-                        id={`p-label-${p.id}`}
-                        htmlFor={`p-${p.id}`}
-                        className="cursor-pointer font-medium"
-                      >
-                        {p.title}
-                      </Label>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {p.summary}
-                      </p>
-                    </div>
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      onClick={() => togglePrinciple(p.id, !selected)}
+                      aria-pressed={selected}
+                      aria-labelledby={titleId}
+                      className={cn(
+                        "flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors motion-reduce:transition-none",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:focus-visible:ring-0 motion-reduce:focus-visible:ring-offset-0",
+                        selected
+                          ? "border-primary bg-primary/[0.08] shadow-sm ring-1 ring-primary/25 dark:bg-primary/[0.12]"
+                          : "border-border/80 bg-card hover:border-border hover:bg-muted/35 active:bg-muted/50",
+                      )}
+                    >
+                      <PrincipleIllustration
+                        src={p.imagePath}
+                        alt=""
+                        variant="inline"
+                        className="shrink-0 rounded-md opacity-95"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <span
+                          id={titleId}
+                          className="font-medium text-foreground"
+                        >
+                          {p.title}
+                        </span>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {p.summary}
+                        </p>
+                      </div>
+                    </button>
                   </li>
                 );
               })}
@@ -413,44 +394,6 @@ export function ReflectionWizard({
         ) : null}
 
         {step === 3 ? (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Jak moc byla tato konzultace v souladu s misí JIC a servisním rámcem? Je to pro vaše vlastní učení — nikoliv hodnocení výkonu.
-            </p>
-            <RadioGroup
-              value={alignmentLikert}
-              onValueChange={(v) => setAlignmentLikert(v as AlignmentLikert)}
-              className="space-y-2"
-            >
-              {alignmentOptions.map((o) => (
-                <div
-                  key={o.value}
-                  className="flex items-center gap-3 rounded-md border border-border/80 bg-card p-3"
-                >
-                  <RadioGroupItem value={o.value} id={`al-${o.value}`} />
-                  <Label
-                    htmlFor={`al-${o.value}`}
-                    className="flex-1 cursor-pointer font-normal"
-                  >
-                    {o.label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-            <div className="space-y-2">
-              <Label htmlFor="alignmentNote">Volitelný komentář</Label>
-              <Textarea
-                id="alignmentNote"
-                value={alignmentNote}
-                onChange={(e) => setAlignmentNote(e.target.value)}
-                placeholder="Napětí, kompromisy, co bylo nejasné…"
-                maxLength={2000}
-              />
-            </div>
-          </div>
-        ) : null}
-
-        {step === 4 ? (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               Jedno krátké poučení pro vaši příští konzultaci.

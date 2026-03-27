@@ -154,24 +154,27 @@ export function ReflectionReadOnly({ data, principles, roleGroups }: Props) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Soulad s rámcem JIC</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          {session.alignmentLikert ? (
-            <p className="text-foreground">
-              {alignmentLabels[session.alignmentLikert] ??
-                session.alignmentLikert}
-            </p>
-          ) : null}
-          {session.alignmentNote ? (
-            <p className="text-muted-foreground whitespace-pre-wrap">
-              {session.alignmentNote}
-            </p>
-          ) : null}
-        </CardContent>
-      </Card>
+      {session.alignmentLikert ||
+      (session.alignmentNote && session.alignmentNote.trim() !== "") ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Soulad s rámcem JIC</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {session.alignmentLikert ? (
+              <p className="text-foreground">
+                {alignmentLabels[session.alignmentLikert] ??
+                  session.alignmentLikert}
+              </p>
+            ) : null}
+            {session.alignmentNote ? (
+              <p className="text-muted-foreground whitespace-pre-wrap">
+                {session.alignmentNote}
+              </p>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

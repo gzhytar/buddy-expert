@@ -292,8 +292,6 @@ export async function saveReflectionDraft(
       preparationId,
       consultationLabel: data.consultationLabel?.trim() || null,
       occurredAt: data.occurredAt?.trim() || null,
-      alignmentLikert: data.alignmentLikert?.trim() || null,
-      alignmentNote: data.alignmentNote?.trim() || null,
       learningNote: data.learningNote?.trim() || null,
       updatedAt: t,
     })
@@ -380,8 +378,6 @@ export async function completeReflection(
     occurredAt: data.occurredAt,
     principleIds: data.principleIds,
     roles: data.roles,
-    alignmentLikert: data.alignmentLikert,
-    alignmentNote: data.alignmentNote,
     learningNote: data.learningNote,
   });
 
@@ -390,7 +386,12 @@ export async function completeReflection(
   const t = nowIso();
   await db
     .update(reflectionSessions)
-    .set({ status: "complete", updatedAt: t })
+    .set({
+      status: "complete",
+      alignmentLikert: null,
+      alignmentNote: null,
+      updatedAt: t,
+    })
     .where(eq(reflectionSessions.id, data.id));
 
   revalidatePath("/reflections");

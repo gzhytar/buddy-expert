@@ -2,16 +2,6 @@ import { z } from "zod";
 
 export const calibrationSchema = z.enum(["underused", "balanced", "overused"]);
 
-export const alignmentLikertSchema = z.enum([
-  "strongly_aligned",
-  "aligned",
-  "mixed",
-  "strained",
-  "unsure",
-]);
-
-export type AlignmentLikert = z.infer<typeof alignmentLikertSchema>;
-
 export const roleCalibrationRowSchema = z.object({
   roleId: z.string().min(1),
   calibration: calibrationSchema,
@@ -26,10 +16,6 @@ export const reflectionDraftPayloadSchema = z.object({
   occurredAt: z.string().max(32).optional(),
   principleIds: z.array(z.string()).optional(),
   roles: z.array(roleCalibrationRowSchema).optional(),
-  alignmentLikert: z
-    .union([alignmentLikertSchema, z.literal("")])
-    .optional(),
-  alignmentNote: z.string().max(2000).optional(),
   learningNote: z.string().max(4000).optional(),
 });
 
@@ -43,8 +29,6 @@ export const reflectionCompletePayloadSchema = z.object({
   roles: z
     .array(roleCalibrationRowSchema)
     .min(1, "Vyberte alespoň jednu roli a nastavte kalibraci"),
-  alignmentLikert: alignmentLikertSchema,
-  alignmentNote: z.string().max(2000).optional(),
   learningNote: z
     .string()
     .min(1, "Přidejte krátkou poznámku k učení")

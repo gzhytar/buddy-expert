@@ -1,12 +1,12 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ConsultingRole } from "@/lib/db/schema";
 import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
 import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
 import { roleSummaryForList } from "@/lib/consulting-roles/card-content";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
@@ -70,44 +70,55 @@ function renderRoleRows(
 ) {
   if (props.mode === "reflection") {
     return roles.map((r) => {
-      const checked = props.selectedRoleIds.includes(r.id);
+      const selected = props.selectedRoleIds.includes(r.id);
       const roleBlurb = roleSummaryForList(r);
+      const labelId = `r-label-${r.id}`;
       return (
-        <RoleRowShell key={r.id} reducedMotion={reducedMotion}>
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id={`r-${r.id}`}
-              checked={checked}
-              onCheckedChange={(v) => props.onToggleRole(r.id, v === true)}
-              aria-labelledby={`r-label-${r.id}`}
-            />
+        <RoleRowShell
+          key={r.id}
+          reducedMotion={reducedMotion}
+          className={cn(
+            "overflow-hidden rounded-xl p-0 transition-colors motion-reduce:transition-none",
+            selected
+              ? "border-primary bg-primary/[0.08] shadow-sm ring-1 ring-primary/25 dark:bg-primary/[0.12]"
+              : "border-border/80 bg-card hover:border-border hover:bg-muted/35 active:bg-muted/50",
+          )}
+        >
+          <button
+            type="button"
+            onClick={() => props.onToggleRole(r.id, !selected)}
+            aria-pressed={selected}
+            aria-labelledby={labelId}
+            className={cn(
+              "flex w-full items-start gap-3 p-3 text-left transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:focus-visible:ring-0 motion-reduce:focus-visible:ring-offset-0",
+            )}
+          >
             <PrincipleIllustration
               src={r.imagePath}
-              alt={`Ilustrace k roli: ${r.name}`}
+              alt=""
               variant="inline"
               missingFileHint={ROLE_IMAGE_MISSING_HINT}
-              className="rounded-md border-0 shadow-none"
+              className="shrink-0 rounded-md border-0 shadow-none opacity-95"
             />
             <div className="min-w-0 flex-1">
-              <Label
-                id={`r-label-${r.id}`}
-                htmlFor={`r-${r.id}`}
-                className="cursor-pointer font-medium"
-              >
+              <span id={labelId} className="font-medium text-foreground">
                 {r.name}
-              </Label>
+              </span>
               {roleBlurb ? (
-                <p className="mt-1 text-sm text-muted-foreground">{roleBlurb}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {roleBlurb}
+                </p>
               ) : null}
             </div>
-          </div>
-          {checked ? (
+          </button>
+          {selected ? (
             <motion.div
               layout={!reducedMotion}
               initial={reducedMotion ? false : { opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               transition={reducedMotion ? { duration: 0 } : { duration: 0.22 }}
-              className="mt-3 border-t border-border/60 pt-3"
+              className="border-t border-border/60 px-3 pb-3 pt-3 dark:border-border/50"
             >
               <Label className="text-xs text-muted-foreground">Kalibrace</Label>
               <RadioGroup
@@ -145,81 +156,90 @@ function renderRoleRows(
 
   return roles.map((r) => {
     const polarity = props.polarityByRole[r.id];
-    const selected = polarity != null;
     const roleBlurb = roleSummaryForList(r);
+    
     return (
-      <RoleRowShell key={r.id} reducedMotion={reducedMotion}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <RoleRowShell
+        key={r.id}
+        reducedMotion={reducedMotion}
+        className={cn(
+          "transition-colors duration-200",
+          polarity === "strengthen" && "border-primary/40 bg-primary/[0.02]",
+          polarity === "downregulate" && "border-secondary-foreground/30 bg-secondary/20"
+        )}
+      >
+        <div className="flex flex-row items-start justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-start gap-3">
-            <Checkbox
-              id={`prep-r-${r.id}`}
-              checked={selected}
-              onCheckedChange={(v) =>
-                props.onSetPolarity(r.id, v === true ? "strengthen" : null)
-              }
-              aria-labelledby={`prep-r-label-${r.id}`}
-            />
             <PrincipleIllustration
               src={r.imagePath}
               alt={`Ilustrace k roli: ${r.name}`}
               variant="inline"
               missingFileHint={ROLE_IMAGE_MISSING_HINT}
-              className="rounded-md border-0 shadow-none"
+              className="rounded-md border-0 shadow-none opacity-90"
             />
-            <div className="min-w-0">
-              <Label
+            <div className="min-w-0 pr-1">
+              <span
                 id={`prep-r-label-${r.id}`}
-                htmlFor={`prep-r-${r.id}`}
-                className="cursor-pointer font-medium"
+                className="font-medium text-foreground"
               >
                 {r.name}
-              </Label>
+              </span>
               {roleBlurb ? (
-                <p className="mt-1 text-sm text-muted-foreground">{roleBlurb}</p>
+                <p className="mt-0.5 text-[13px] text-muted-foreground leading-snug">
+                  {roleBlurb}
+                </p>
               ) : null}
             </div>
           </div>
-          {selected ? (
-            <motion.div
-              layout={!reducedMotion}
-              className="flex shrink-0 flex-wrap gap-2"
-              role="group"
-              aria-label={`Priorita role ${r.name}`}
+
+          <div
+            className="flex shrink-0 flex-col items-end gap-0.5 rounded-lg border border-border/80 bg-muted/30 p-1"
+            role="group"
+            aria-label={`Priorita role ${r.name}`}
+          >
+            <Button
+              type="button"
+              size="sm"
+              variant={polarity === "strengthen" ? "default" : "ghost"}
+              className={cn(
+                "h-7 w-min min-w-0 justify-center gap-1 px-2 text-xs font-medium transition-all",
+                polarity !== "strengthen" &&
+                  "text-muted-foreground hover:bg-background hover:text-foreground",
+              )}
+              aria-pressed={polarity === "strengthen"}
+              onClick={() =>
+                props.onSetPolarity(
+                  r.id,
+                  polarity === "strengthen" ? null : "strengthen",
+                )
+              }
             >
-              <Button
-                type="button"
-                size="sm"
-                variant={polarity === "strengthen" ? "default" : "outline"}
-                className="min-h-9"
-                aria-pressed={polarity === "strengthen"}
-                aria-label={`Posílit roli ${r.name}`}
-                onClick={() => props.onSetPolarity(r.id, "strengthen")}
-              >
-                Posílit
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={polarity === "downregulate" ? "secondary" : "outline"}
-                className="min-h-9"
-                aria-pressed={polarity === "downregulate"}
-                aria-label={`Tlumit roli ${r.name}`}
-                onClick={() => props.onSetPolarity(r.id, "downregulate")}
-              >
-                Tlumit
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="min-h-9 text-muted-foreground"
-                aria-label={`Zrušit výběr role ${r.name}`}
-                onClick={() => props.onSetPolarity(r.id, null)}
-              >
-                Zrušit
-              </Button>
-            </motion.div>
-          ) : null}
+              <Plus className="size-3.5 shrink-0" aria-hidden />
+              Posílit
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={polarity === "downregulate" ? "secondary" : "ghost"}
+              className={cn(
+                "h-7 w-min min-w-0 justify-center gap-1 px-2 text-xs font-medium transition-all",
+                polarity !== "downregulate" &&
+                  "text-muted-foreground hover:bg-background hover:text-foreground",
+                polarity === "downregulate" &&
+                  "bg-secondary text-secondary-foreground shadow-sm",
+              )}
+              aria-pressed={polarity === "downregulate"}
+              onClick={() =>
+                props.onSetPolarity(
+                  r.id,
+                  polarity === "downregulate" ? null : "downregulate",
+                )
+              }
+            >
+              <Minus className="size-3.5 shrink-0" aria-hidden />
+              Tlumit
+            </Button>
+          </div>
         </div>
       </RoleRowShell>
     );
@@ -234,7 +254,7 @@ export function RoleSelector(props: RoleSelectorProps) {
       {props.roleGroups.map((g) => (
         <div key={g.phaseKey} className="space-y-3">
           <h2 className="font-display text-lg font-semibold">{g.phaseLabel}</h2>
-          <ul className="space-y-3">
+          <ul className="list-none space-y-3 p-0">
             {renderRoleRows(g.roles, props, reducedMotion)}
           </ul>
         </div>

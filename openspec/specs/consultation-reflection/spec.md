@@ -40,15 +40,6 @@ The system SHALL let the expert select one or more situational roles they used i
 - **WHEN** the expert selects two roles and sets calibration for each
 - **THEN** the system persists both roles with their respective calibration values
 
-### Requirement: JIC frame alignment
-
-The system SHALL capture whether the expert assesses the consultation as aligned with the JIC mission and service frame, via a short structured response and/or brief free text, without imposing a numeric performance score visible to managers.
-
-#### Scenario: Expert records alignment
-
-- **WHEN** the expert completes the frame-alignment step
-- **THEN** the system stores the alignment response as part of the reflection session
-
 ### Requirement: Learning note
 
 The system SHALL let the expert record a short learning note capturing takeaway for future consultations.
