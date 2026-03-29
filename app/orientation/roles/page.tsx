@@ -12,7 +12,7 @@ export default async function OrientationRolesPage() {
     <div className="space-y-8">
       <nav aria-label="Breadcrumb">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/orientation">← Orientation</Link>
+          <Link href="/orientation">← Orientace</Link>
         </Button>
       </nav>
       <header className="space-y-3">
@@ -24,7 +24,7 @@ export default async function OrientationRolesPage() {
           <strong className="text-foreground">podužitá</strong>,{" "}
           <strong className="text-foreground">vyvážená</strong> nebo{" "}
           <strong className="text-foreground">přepálená</strong>.
-        </p>.
+        </p>
       </header>
       <div className="space-y-12">
         {groups.map((g) => (
