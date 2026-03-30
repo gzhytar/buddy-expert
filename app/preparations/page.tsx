@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { RecordDeleteButton } from "@/components/records/record-delete-button";
 import {
+  deletePreparation,
   listAllPreparationsForUser,
   listWaitingPreparationsForUser,
 } from "@/lib/preparation/actions";
@@ -13,6 +15,22 @@ function formatCsDate(iso: string) {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function preparationDisplayLabel(
+  consultationLabel: string | null | undefined,
+): string {
+  return consultationLabel?.trim() || "Nepojmenovaná příprava";
+}
+
+function preparationDeleteDescription(
+  label: string,
+  section: "waiting" | "all",
+): string {
+  if (section === "waiting") {
+    return `Záznam „${label}“ bude trvale odstraněn včetně rolí a záměru. Pokud k němu vede navázaná reflexe, z reflexe zmizí jen odkaz na přípravu — samotná reflexe zůstane.`;
+  }
+  return `Záznam „${label}“ bude trvale odstraněn. Navázaná reflexe (pokud existuje) ztratí jen odkaz na tuto přípravu.`;
 }
 
 export default async function PreparationsListPage({ searchParams }: Props) {
@@ -59,49 +77,57 @@ export default async function PreparationsListPage({ searchParams }: Props) {
             založte reflexi a porovnejte záměr s realitou.
           </p>
           <ul className="space-y-3">
-            {waiting.map((p) => (
-              <li
-                key={p.id}
-                className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <Link
-                  href={`/preparations/${p.id}`}
-                  className="block min-w-0 flex-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Card className="border-primary/20 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
-                    <CardHeader className="space-y-0 pb-2">
-                      <CardTitle className="text-base font-medium">
-                        {p.consultationLabel?.trim() || "Nepojmenovaná příprava"}
-                      </CardTitle>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Aktualizováno {formatCsDate(p.updatedAt)}
-                        {" · "}
-                        <span className="capitalize">
-                          {p.status === "draft" ? "rozpracováno" : "dokončeno"}
-                        </span>
-                        {p.occurredAt?.trim() ? (
-                          <>
-                            {" · "}
-                            Schůzka {formatCsDate(p.occurredAt)}
-                          </>
-                        ) : null}
-                      </p>
-                    </CardHeader>
-                  </Card>
-                </Link>
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="shrink-0 self-start sm:self-center"
+            {waiting.map((p) => {
+              const label = preparationDisplayLabel(p.consultationLabel);
+              return (
+                <li
+                  key={p.id}
+                  className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:justify-between"
                 >
                   <Link
-                    href={`/reflections/new?preparationId=${encodeURIComponent(p.id)}`}
+                    href={`/preparations/${p.id}`}
+                    className="block min-w-0 flex-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    Zahájit reflexi
+                    <Card className="h-full border-primary/20 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
+                      <CardHeader className="space-y-0 pb-2">
+                        <CardTitle className="text-base font-medium">
+                          {label}
+                        </CardTitle>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Aktualizováno {formatCsDate(p.updatedAt)}
+                          {" · "}
+                          <span className="capitalize">
+                            {p.status === "draft" ? "rozpracováno" : "dokončeno"}
+                          </span>
+                          {p.occurredAt?.trim() ? (
+                            <>
+                              {" · "}
+                              Schůzka {formatCsDate(p.occurredAt)}
+                            </>
+                          ) : null}
+                        </p>
+                      </CardHeader>
+                    </Card>
                   </Link>
-                </Button>
-              </li>
-            ))}
+                  <div className="flex shrink-0 flex-col gap-2 self-start sm:self-center sm:justify-center">
+                    <RecordDeleteButton
+                      recordId={p.id}
+                      deleteAction={deletePreparation}
+                      title="Smazat přípravu?"
+                      description={preparationDeleteDescription(label, "waiting")}
+                      confirmLabel="Smazat přípravu"
+                    />
+                    <Button asChild variant="secondary" className="w-full sm:w-auto">
+                      <Link
+                        href={`/reflections/new?preparationId=${encodeURIComponent(p.id)}`}
+                      >
+                        Zahájit reflexi
+                      </Link>
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ) : null}
@@ -130,40 +156,55 @@ export default async function PreparationsListPage({ searchParams }: Props) {
           </Card>
         ) : (
           <ul className="space-y-3">
-            {all.map((p) => (
-              <li key={p.id}>
-                <Link
-                  href={`/preparations/${p.id}`}
-                  className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            {all.map((p) => {
+              const label = preparationDisplayLabel(p.consultationLabel);
+              return (
+                <li
+                  key={p.id}
+                  className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-3"
                 >
-                  <Card className="transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
-                    <CardHeader className="space-y-0 pb-2">
-                      <CardTitle className="text-base font-medium">
-                        {p.consultationLabel?.trim() || "Nepojmenovaná příprava"}
-                      </CardTitle>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Aktualizováno {formatCsDate(p.updatedAt)}
-                        {" · "}
-                        <span className="capitalize">
-                          {p.status === "draft" ? "rozpracováno" : "dokončeno"}
-                        </span>
-                        {p.hasLinkedReflection ? (
-                          <span> · Reflexe založena</span>
-                        ) : (
-                          <span> · Bez reflexe</span>
-                        )}
-                        {p.occurredAt?.trim() ? (
-                          <>
-                            {" · "}
-                            Schůzka {formatCsDate(p.occurredAt)}
-                          </>
-                        ) : null}
-                      </p>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              </li>
-            ))}
+                  <Link
+                    href={`/preparations/${p.id}`}
+                    className="block min-w-0 flex-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Card className="h-full transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
+                      <CardHeader className="space-y-0 pb-2">
+                        <CardTitle className="text-base font-medium">
+                          {label}
+                        </CardTitle>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Aktualizováno {formatCsDate(p.updatedAt)}
+                          {" · "}
+                          <span className="capitalize">
+                            {p.status === "draft" ? "rozpracováno" : "dokončeno"}
+                          </span>
+                          {p.hasLinkedReflection ? (
+                            <span> · Reflexe založena</span>
+                          ) : (
+                            <span> · Bez reflexe</span>
+                          )}
+                          {p.occurredAt?.trim() ? (
+                            <>
+                              {" · "}
+                              Schůzka {formatCsDate(p.occurredAt)}
+                            </>
+                          ) : null}
+                        </p>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                  <div className="flex shrink-0 items-start sm:items-center">
+                    <RecordDeleteButton
+                      recordId={p.id}
+                      deleteAction={deletePreparation}
+                      title="Smazat přípravu?"
+                      description={preparationDeleteDescription(label, "all")}
+                      confirmLabel="Smazat přípravu"
+                    />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

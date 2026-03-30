@@ -89,18 +89,29 @@ async function completeQuestionsChat(params: {
   return parsed.data.questions;
 }
 
+const MAX_PRIMARY_PREP_INTENT_CHARS = 3000;
+
 export async function generateQuestionTexts(params: {
   ragContext: string;
   consultationLabel: string | null;
   roleContextDescription: string;
+  /** Neprázdný text z přípravy — má vést otázky jako hlavní kotva (plán vs. realita). */
+  primaryPreparationIntent?: string | null;
 }): Promise<string[]> {
   const system = `Jsi asistent pro interní reflexi konzultanta JIC. Odpovídej výhradně JSON objektem ve tvaru {"questions":["...","..."]}.
 Pravidla:
 - 3 až 5 krátkých reflexivních otázek v češtině, vykání.
 - Otázky nesmí být hodnotící ani jako kontrola výkonu; podporují uvědomění a kalibraci rolí.
-- Vycházej z kontextu rolí a z dodaného korpusu JIC. Nepřidávej obecné poradenství mimo rámec JIC.`;
+- Vycházej z kontextu rolí a z dodaného korpusu JIC. Nepřidávej obecné poradenství mimo rámec JIC.
+- Pokud je předán blok „Původní záměr z přípravy“, otázky se mají primárně vztahovat k němu a k porovnání s realitou schůzky.`;
 
-  const user = `Kontext konzultace (volitelný název): ${params.consultationLabel ?? "—"}
+  const primary = params.primaryPreparationIntent?.trim();
+  const primaryBlock =
+    primary && primary.length > 0
+      ? `HLAVNÍ KONTEXT — Původní záměr z přípravy před schůzkou:\n${primary.slice(0, MAX_PRIMARY_PREP_INTENT_CHARS)}\n\n`
+      : "";
+
+  const user = `${primaryBlock}Kontext konzultace (volitelný název): ${params.consultationLabel ?? "—"}
 
 ${params.roleContextDescription}
 
@@ -148,11 +159,16 @@ Vrať JSON: {"questions":["otázka1",...]}`;
   return completeQuestionsChat({ system, user });
 }
 
+const MAX_REFLECTION_LEARNING_NOTE_CHARS = 4000;
+
 export async function generateStructuredProposal(params: {
   ragContext: string;
   consultationLabel: string | null;
   roleContextDescription: string;
   questionsAndAnswers: { question: string; answer: string }[];
+  primaryPreparationIntent?: string | null;
+  /** Text z pole Poznámka k učení (včetně vložených otázek). */
+  reflectionLearningNote?: string | null;
 }): Promise<z.infer<typeof proposalResponseSchema>> {
   const system = `Jsi asistent pro strukturování reflexe konzultanta JIC. Odpověz pouze JSON objektem:
 {"principleIds":["id",...],"roles":[{"roleId":"...","calibration":"underused|balanced|overused"},...],"learningNote":"..."}
@@ -162,16 +178,40 @@ Pravidla:
 - Vyber rozumný počet principů (1–6) a rolí (1–8) podle odpovědí uživatele.
 - calibration: underused = málo, balanced = akorát, overused = přehřátá role.
 - learningNote: jedno stručné poučení v češtině, ne hodnocení.
-- Tón podpůrný, ne represivní.`;
+- Tón podpůrný, ne represivní.
+- Je-li předán původní záměr z přípravy, zohledni ho při návrhu struktury reflexe.`;
 
-  const qa = params.questionsAndAnswers
-    .map(
-      (x, i) =>
-        `Otázka ${i + 1}: ${x.question}\nOdpověď: ${x.answer || "(prázdné)"}`,
-    )
-    .join("\n\n");
+  const note = params.reflectionLearningNote?.trim() ?? "";
+  const noteBlock =
+    note.length > 0
+      ? `Poznámka k učení experta:\n${note.slice(0, MAX_REFLECTION_LEARNING_NOTE_CHARS)}\n\n---\n\n`
+      : "";
 
-  const user = `Kontext konzultace: ${params.consultationLabel ?? "—"}
+  const pairs = params.questionsAndAnswers;
+  const anyAnswer = pairs.some((x) => x.answer.trim().length > 0);
+  const qa = anyAnswer
+    ? pairs
+        .map(
+          (x, i) =>
+            `Otázka ${i + 1}: ${x.question}\nOdpověď: ${x.answer || "(prázdné)"}`,
+        )
+        .join("\n\n")
+    : note.length > 0
+      ? `Reflexivní otázky:\n${pairs.map((x, i) => `${i + 1}. ${x.question}`).join("\n")}\n\nOdpovědi a reflexe experta jsou v textu poznámky k učení výše.`
+      : pairs
+          .map(
+            (x, i) =>
+              `Otázka ${i + 1}: ${x.question}\nOdpověď: ${x.answer || "(prázdné)"}`,
+          )
+          .join("\n\n");
+
+  const primary = params.primaryPreparationIntent?.trim();
+  const primaryBlock =
+    primary && primary.length > 0
+      ? `HLAVNÍ KONTEXT — Původní záměr z přípravy před schůzkou:\n${primary.slice(0, MAX_PRIMARY_PREP_INTENT_CHARS)}\n\n`
+      : "";
+
+  const user = `${primaryBlock}${noteBlock}Kontext konzultace: ${params.consultationLabel ?? "—"}
 
 ${params.roleContextDescription}
 

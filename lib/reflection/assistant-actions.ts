@@ -10,7 +10,10 @@ import { db } from "@/lib/db";
 import {
   consultingRoles,
   preparationRoles,
+  preparationSessions,
   principles,
+  reflectionPrinciples,
+  reflectionRoleCalibrations,
   reflectionSessions,
   userConsultingRoleSelfEvals,
 } from "@/lib/db/schema";
@@ -38,6 +41,7 @@ const saveAssistantStateSchema = z.object({
 const proposalRequestSchema = z.object({
   reflectionId: z.string().min(1),
   answers: z.record(z.string(), z.string()),
+  learningNoteContext: z.string().max(4000).optional(),
 });
 
 function nowIso() {
@@ -80,6 +84,145 @@ async function loadPreparationRoleIds(preparationId: string | null) {
     else downregulateRoleIds.push(r.roleId);
   }
   return { strengthenRoleIds, downregulateRoleIds };
+}
+
+async function loadPreparationFocusNote(
+  preparationId: string | null,
+): Promise<string | null> {
+  if (!preparationId?.trim()) return null;
+  const [row] = await db
+    .select({ focusNote: preparationSessions.focusNote })
+    .from(preparationSessions)
+    .where(eq(preparationSessions.id, preparationId.trim()))
+    .limit(1);
+  return row?.focusNote ?? null;
+}
+
+const CALIBRATION_CS: Record<string, string> = {
+  underused: "podhodnocená",
+  balanced: "vyvážená",
+  overused: "přehřátá",
+};
+
+async function loadReflectionDraftContextDescription(
+  reflectionId: string,
+): Promise<string> {
+  const pRows = await db
+    .select({ title: principles.title })
+    .from(reflectionPrinciples)
+    .innerJoin(
+      principles,
+      eq(reflectionPrinciples.principleId, principles.id),
+    )
+    .where(eq(reflectionPrinciples.reflectionId, reflectionId));
+
+  const rRows = await db
+    .select({
+      name: consultingRoles.name,
+      calibration: reflectionRoleCalibrations.calibration,
+    })
+    .from(reflectionRoleCalibrations)
+    .innerJoin(
+      consultingRoles,
+      eq(reflectionRoleCalibrations.roleId, consultingRoles.id),
+    )
+    .where(eq(reflectionRoleCalibrations.reflectionId, reflectionId));
+
+  const lines: string[] = [];
+  if (pRows.length > 0) {
+    const titles = pRows.map((x) => x.title).filter(Boolean);
+    if (titles.length > 0) {
+      lines.push(
+        `Principy z Konzultantského desatera zapsané v reflexi: ${titles.join("; ")}`,
+      );
+    }
+  }
+  if (rRows.length > 0) {
+    const parts = rRows.map(
+      (r) =>
+        `${r.name} (${CALIBRATION_CS[r.calibration] ?? r.calibration})`,
+    );
+    lines.push(
+      `Situační role zapsané v reflexi s kalibrací: ${parts.join(", ")}`,
+    );
+  }
+  return lines.join("\n");
+}
+
+type ReflectionSessionRow = NonNullable<
+  Awaited<ReturnType<typeof requireDraftReflectionForUser>>
+>;
+
+async function buildReflectionAssistantInferencePack(
+  row: ReflectionSessionRow,
+  userId: string,
+  anchorRoleIdsRaw: string[],
+): Promise<{
+  primaryPreparationIntent: string | null;
+  roleContextDescription: string;
+  ragQueryString: string;
+  anchorRoleIdsForState: string[];
+}> {
+  const prepFocus = await loadPreparationFocusNote(row.preparationId);
+  const primaryPreparationIntent =
+    prepFocus?.trim() ? prepFocus.trim().slice(0, 3000) : null;
+
+  const reflectionDraftDesc =
+    await loadReflectionDraftContextDescription(row.id);
+  const prep = await loadPreparationRoleIds(row.preparationId);
+  const hasPrepSignal =
+    prep.strengthenRoleIds.length > 0 || prep.downregulateRoleIds.length > 0;
+
+  const validRoleRows = await db
+    .select({ id: consultingRoles.id })
+    .from(consultingRoles);
+  const allowed = new Set(validRoleRows.map((r) => r.id));
+  const anchorRoleIds = anchorRoleIdsRaw.slice(0, 3).filter((id) =>
+    allowed.has(id),
+  );
+
+  let focusImproveRoleIds: string[] = [];
+  if (!hasPrepSignal && anchorRoleIds.length === 0) {
+    focusImproveRoleIds = await loadFocusImproveRoleIds(userId);
+  }
+
+  const nameIds = [
+    ...prep.strengthenRoleIds,
+    ...prep.downregulateRoleIds,
+    ...anchorRoleIds,
+    ...focusImproveRoleIds,
+  ];
+  const nameById = await roleNamesMap([...new Set(nameIds)]);
+
+  const supplemental = buildRoleContextDescription({
+    strengthenRoleIds: prep.strengthenRoleIds,
+    downregulateRoleIds: prep.downregulateRoleIds,
+    anchorRoleIds: hasPrepSignal ? [] : anchorRoleIds,
+    focusImproveRoleIds:
+      hasPrepSignal || anchorRoleIds.length > 0 ? [] : focusImproveRoleIds,
+    nameById,
+  });
+
+  const mergedParts = [reflectionDraftDesc.trim() || null, supplemental].filter(
+    Boolean,
+  );
+  const roleContextDescription = mergedParts.join("\n\n");
+
+  const ragQueryString = [
+    primaryPreparationIntent,
+    row.consultationLabel ?? "",
+    reflectionDraftDesc,
+    supplemental,
+  ]
+    .filter((x) => x != null && String(x).trim() !== "")
+    .join("\n");
+
+  return {
+    primaryPreparationIntent,
+    roleContextDescription,
+    ragQueryString,
+    anchorRoleIdsForState: hasPrepSignal ? [] : anchorRoleIds,
+  };
 }
 
 async function loadFocusImproveRoleIds(userId: string): Promise<string[]> {
@@ -218,50 +361,19 @@ export async function generateReflectionAssistantQuestions(
     return { ok: false, error: "Reflexe nebyla nalezena nebo není rozpracovaná" };
   }
 
-  const prep = await loadPreparationRoleIds(row.preparationId);
-  let anchorRoleIds = (parsed.data.anchorRoleIds ?? []).slice(0, 3);
-  const validRoleIds = await db
-    .select({ id: consultingRoles.id })
-    .from(consultingRoles);
-  const allowed = new Set(validRoleIds.map((r) => r.id));
-  anchorRoleIds = anchorRoleIds.filter((id) => allowed.has(id));
-
-  const hasPrepSignal =
-    prep.strengthenRoleIds.length > 0 || prep.downregulateRoleIds.length > 0;
-
-  let focusImproveRoleIds: string[] = [];
-  if (!hasPrepSignal && anchorRoleIds.length === 0) {
-    focusImproveRoleIds = await loadFocusImproveRoleIds(session.user.id);
-  }
-
-  const nameIds = [
-    ...prep.strengthenRoleIds,
-    ...prep.downregulateRoleIds,
-    ...anchorRoleIds,
-    ...focusImproveRoleIds,
-  ];
-  const nameById = await roleNamesMap([...new Set(nameIds)]);
-
-  const roleContextDescription = buildRoleContextDescription({
-    strengthenRoleIds: prep.strengthenRoleIds,
-    downregulateRoleIds: prep.downregulateRoleIds,
-    anchorRoleIds: hasPrepSignal ? [] : anchorRoleIds,
-    focusImproveRoleIds:
-      hasPrepSignal || anchorRoleIds.length > 0 ? [] : focusImproveRoleIds,
-    nameById,
-  });
-
-  const queryParts = [
-    row.consultationLabel ?? "",
-    roleContextDescription,
-  ].join(" ");
+  const pack = await buildReflectionAssistantInferencePack(
+    row,
+    session.user.id,
+    parsed.data.anchorRoleIds ?? [],
+  );
 
   try {
-    const ragContext = await buildJicRagContext(queryParts);
+    const ragContext = await buildJicRagContext(pack.ragQueryString);
     const questionTexts = await generateQuestionTexts({
       ragContext,
       consultationLabel: row.consultationLabel,
-      roleContextDescription,
+      roleContextDescription: pack.roleContextDescription,
+      primaryPreparationIntent: pack.primaryPreparationIntent,
     });
     const questions = questionTexts.map((text) => ({
       id: crypto.randomUUID(),
@@ -272,7 +384,7 @@ export async function generateReflectionAssistantQuestions(
       phase: "questions",
       questions,
       answers: Object.fromEntries(questions.map((q) => [q.id, ""])),
-      anchorRoleIds: hasPrepSignal ? [] : anchorRoleIds,
+      anchorRoleIds: pack.anchorRoleIdsForState,
       lastError: undefined,
     };
     await persistAssistantState(parsed.data.reflectionId, next);
@@ -320,30 +432,13 @@ export async function generateReflectionAssistantProposal(
   }
 
   const answers = { ...current.answers, ...parsed.data.answers };
-  const prep = await loadPreparationRoleIds(row.preparationId);
-  const hasPrepSignal =
-    prep.strengthenRoleIds.length > 0 || prep.downregulateRoleIds.length > 0;
-  const anchorRoleIds = current.anchorRoleIds ?? [];
-  let focusImproveRoleIds: string[] = [];
-  if (!hasPrepSignal && anchorRoleIds.length === 0) {
-    focusImproveRoleIds = await loadFocusImproveRoleIds(session.user.id);
-  }
-  const nameById = await roleNamesMap(
-    [
-      ...prep.strengthenRoleIds,
-      ...prep.downregulateRoleIds,
-      ...anchorRoleIds,
-      ...focusImproveRoleIds,
-    ].filter((id, i, a) => a.indexOf(id) === i),
+  const learningNoteContext = parsed.data.learningNoteContext?.trim() ?? "";
+
+  const pack = await buildReflectionAssistantInferencePack(
+    row,
+    session.user.id,
+    current.anchorRoleIds ?? [],
   );
-  const roleContextDescription = buildRoleContextDescription({
-    strengthenRoleIds: prep.strengthenRoleIds,
-    downregulateRoleIds: prep.downregulateRoleIds,
-    anchorRoleIds: hasPrepSignal ? [] : anchorRoleIds,
-    focusImproveRoleIds:
-      hasPrepSignal || anchorRoleIds.length > 0 ? [] : focusImproveRoleIds,
-    nameById,
-  });
 
   const questionsAndAnswers = current.questions.map((q) => ({
     question: q.text,
@@ -351,17 +446,20 @@ export async function generateReflectionAssistantProposal(
   }));
 
   const queryParts = [
-    row.consultationLabel ?? "",
+    pack.ragQueryString,
+    learningNoteContext,
     ...questionsAndAnswers.flatMap((x) => [x.question, x.answer]),
-  ].join(" ");
+  ].join("\n");
 
   try {
     const ragContext = await buildJicRagContext(queryParts);
     const rawProposal = await generateStructuredProposal({
       ragContext,
       consultationLabel: row.consultationLabel,
-      roleContextDescription,
+      roleContextDescription: pack.roleContextDescription,
       questionsAndAnswers,
+      primaryPreparationIntent: pack.primaryPreparationIntent,
+      reflectionLearningNote: learningNoteContext || null,
     });
     const cleaned = await validateProposalAgainstDb(rawProposal);
     const next: ReflectionAssistantStateV1 = {

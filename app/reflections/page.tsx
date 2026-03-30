@@ -1,10 +1,20 @@
 import Link from "next/link";
-import { listReflectionsForUser } from "@/lib/reflection/actions";
+import { RecordDeleteButton } from "@/components/records/record-delete-button";
+import {
+  deleteReflection,
+  listReflectionsForUser,
+} from "@/lib/reflection/actions";
 import { listWaitingPreparationsForUser } from "@/lib/preparation/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = { searchParams?: Promise<{ complete?: string }> };
+
+function reflectionDisplayLabel(
+  consultationLabel: string | null | undefined,
+): string {
+  return consultationLabel?.trim() || "Nepojmenovaná konzultace";
+}
 
 export default async function ReflectionsListPage({ searchParams }: Props) {
   const params = await searchParams;
@@ -134,57 +144,72 @@ export default async function ReflectionsListPage({ searchParams }: Props) {
         </Card>
       ) : (
         <ul className="space-y-3">
-          {rows.map((r) => (
-            <li key={r.id}>
-              <Link
-                href={`/reflections/${r.id}`}
-                className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          {rows.map((r) => {
+            const label = reflectionDisplayLabel(r.consultationLabel);
+            return (
+              <li
+                key={r.id}
+                className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-3"
               >
-                <Card className="transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
-                  <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-2">
-                    <div>
-                      <CardTitle className="text-base font-medium">
-                        {r.consultationLabel?.trim() || "Nepojmenovaná konzultace"}
-                      </CardTitle>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {r.status === "complete" ? (
-                          <>
-                            Dokončeno{" "}
-                            {new Date(r.updatedAt).toLocaleString("cs-CZ", {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })}
-                          </>
-                        ) : (
-                          <>
-                            Upraveno{" "}
-                            {new Date(r.updatedAt).toLocaleString("cs-CZ", {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })}
-                          </>
-                        )}
-                        {" · "}
-                        <span className="capitalize">
-                          {r.status === "draft" ? "rozpracováno" : "dokončeno"}
-                        </span>
-                        {r.occurredAt?.trim() ? (
-                          <>
-                            {" · "}
-                            Konzultace{" "}
-                            {new Date(r.occurredAt).toLocaleString("cs-CZ", {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })}
-                          </>
-                        ) : null}
-                      </p>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-            </li>
-          ))}
+                <Link
+                  href={`/reflections/${r.id}`}
+                  className="block min-w-0 flex-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Card className="h-full transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
+                    <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-2">
+                      <div>
+                        <CardTitle className="text-base font-medium">
+                          {label}
+                        </CardTitle>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {r.status === "complete" ? (
+                            <>
+                              Dokončeno{" "}
+                              {new Date(r.updatedAt).toLocaleString("cs-CZ", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}
+                            </>
+                          ) : (
+                            <>
+                              Upraveno{" "}
+                              {new Date(r.updatedAt).toLocaleString("cs-CZ", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}
+                            </>
+                          )}
+                          {" · "}
+                          <span className="capitalize">
+                            {r.status === "draft" ? "rozpracováno" : "dokončeno"}
+                          </span>
+                          {r.occurredAt?.trim() ? (
+                            <>
+                              {" · "}
+                              Konzultace{" "}
+                              {new Date(r.occurredAt).toLocaleString("cs-CZ", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}
+                            </>
+                          ) : null}
+                        </p>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </Link>
+                <div className="flex shrink-0 items-start sm:items-center">
+                  <RecordDeleteButton
+                    recordId={r.id}
+                    deleteAction={deleteReflection}
+                    title="Smazat reflexi?"
+                    description={`Záznam „${label}“ bude trvale odstraněn včetně principů, rolí a poznámky k učení. Tuto akci nelze vrátit zpět.`}
+                    confirmLabel="Smazat reflexi"
+                  />
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

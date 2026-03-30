@@ -7,6 +7,9 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
 import { OriginalIntentPanel } from "@/components/reflection/original-intent-panel";
 import { ReflectionAssistantPanel } from "@/components/reflection/reflection-assistant-panel";
+import {
+  type PreparationRoleSelfEvalSnapshot,
+} from "@/components/preparation/preparation-self-eval-context-hint";
 import { RoleSelector } from "@/components/roles/role-selector";
 import { Button } from "@/components/ui/button";
 import { DatetimeLocalInput } from "@/components/ui/datetime-local-input";
@@ -19,8 +22,10 @@ import {
   toDatetimeLocalValue,
 } from "@/lib/datetime-local";
 import type { ReflectionAssistantStateV1 } from "@/lib/reflection/assistant-state";
+import { RecordDeleteButton } from "@/components/records/record-delete-button";
 import {
   completeReflection,
+  deleteReflection,
   saveReflectionDraft,
   type ReflectionDetail,
 } from "@/lib/reflection/actions";
@@ -58,18 +63,34 @@ type Props = {
   initial: ReflectionDetail;
   principles: Principle[];
   roleGroups: RolePhaseGroup[];
+  /** Souhrn sebeohodnocení rolí; null pokud nepřihlášen. */
+  roleSelfEval: PreparationRoleSelfEvalSnapshot | null;
   waitingPreparations?: WaitingPrepRow[];
 };
+
+/**
+ * Konzultace (krok 0) je zbytečná, pokud už máme název a čas z propojené přípravy.
+ * Začínáme krokem 1 (Konzultantské desatero), ne 2 — jinak by expert přeskočil výběr principů
+ * a dokončení by padalo na validaci „alespoň jeden princip“.
+ */
+function initialStepForReflection(initial: ReflectionDetail): number {
+  const s = initial.session;
+  if (!s.preparationId?.trim()) return 0;
+  if (!(s.consultationLabel ?? "").trim()) return 0;
+  if (!String(s.occurredAt ?? "").trim()) return 0;
+  return 1;
+}
 
 export function ReflectionWizard({
   reflectionId,
   initial,
   principles,
   roleGroups,
+  roleSelfEval,
   waitingPreparations = [],
 }: Props) {
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => initialStepForReflection(initial));
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -246,15 +267,25 @@ export function ReflectionWizard({
         <Button variant="ghost" size="sm" asChild>
           <Link href="/reflections">← Všechny reflexe</Link>
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={pending}
-          onClick={onSaveDraftClick}
-        >
-          Uložit rozpracované
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <RecordDeleteButton
+            recordId={reflectionId}
+            deleteAction={deleteReflection}
+            redirectTo="/reflections"
+            title="Smazat tuto reflexi?"
+            description="Celý záznam reflexe bude trvale odstraněn. Tuto akci nelze vrátit zpět."
+            confirmLabel="Smazat reflexi"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={pending}
+            onClick={onSaveDraftClick}
+          >
+            Uložit rozpracované
+          </Button>
+        </div>
       </nav>
 
       <header className="space-y-3">
@@ -311,15 +342,6 @@ export function ReflectionWizard({
         />
       ) : null}
 
-      <ReflectionAssistantPanel
-        reflectionId={reflectionId}
-        preparation={initial.preparation}
-        roleGroups={roleGroups}
-        state={assistantState}
-        onStateChange={setAssistantState}
-        onApplyProposal={applyAssistantProposal}
-      />
-
       <section
         className="animate-step-in space-y-6"
         aria-live="polite"
@@ -327,9 +349,6 @@ export function ReflectionWizard({
       >
         {step === 0 ? (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Pouze volitelný kontext — žádná vazba na CRM. Pojmenujte tuto konzultaci způsobem, který vám dává smysl.
-            </p>
             {!initial.session.preparationId && waitingPreparations.length > 0 ? (
               <div className="space-y-2">
                 <Label htmlFor="link-prep">Propojit s přípravou (volitelné)</Label>
@@ -435,14 +454,23 @@ export function ReflectionWizard({
               calibrationByRole={calibrationByRole}
               onToggleRole={toggleRole}
               onSetCalibration={setCalibration}
+              focusPartition={
+                roleSelfEval != null &&
+                roleSelfEval.isComplete &&
+                roleSelfEval.focusRoleIds.length > 0
+                  ? { focusRoleIds: roleSelfEval.focusRoleIds }
+                  : undefined
+              }
             />
           </div>
         ) : null}
 
         {step === 3 ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <p className="text-sm text-muted-foreground">
-              Jedno krátké poučení pro vaši příští konzultaci.
+              Jedno krátké poučení pro vaši příští konzultaci. Volitelný asistent níže
+              může navrhnout reflexivní otázky a strukturu reflexe — otázky můžete vložit na
+              konec poznámky, nebo pište rovnou.
             </p>
             <div className="space-y-2">
               <Label htmlFor="learning">Poznámka k učení</Label>
@@ -455,6 +483,20 @@ export function ReflectionWizard({
                 rows={6}
               />
             </div>
+            <ReflectionAssistantPanel
+              reflectionId={reflectionId}
+              preparation={initial.preparation}
+              roleGroups={roleGroups}
+              state={assistantState}
+              onStateChange={setAssistantState}
+              onApplyProposal={applyAssistantProposal}
+              saveDraft={saveDraft}
+              hasReflectionSelections={
+                principleIds.length > 0 || selectedRoleIds.length > 0
+              }
+              learningNote={learningNote}
+              onLearningNoteChange={setLearningNote}
+            />
           </div>
         ) : null}
       </section>

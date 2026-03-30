@@ -1,7 +1,9 @@
 "use client";
 
+import { RecordDeleteButton } from "@/components/records/record-delete-button";
 import {
   completePreparation,
+  deletePreparation,
   savePreparationDraft,
   type PreparationDetail,
 } from "@/lib/preparation/actions";
@@ -21,17 +23,24 @@ import { DatetimeLocalInput } from "@/components/ui/datetime-local-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PreparationDesateroStepContent } from "@/components/preparation/preparation-desatero-step-content";
 import {
   PreparationSelfEvalContextHint,
   type PreparationRoleSelfEvalSnapshot,
 } from "@/components/preparation/preparation-self-eval-context-hint";
+import type { Principle } from "@/lib/db/schema";
 import { RoleSelector } from "@/components/roles/role-selector";
 import {
   isoFromDatetimeLocalInput,
   toDatetimeLocalValue,
 } from "@/lib/datetime-local";
 
-const STEPS = ["Konzultace", "Role", "Záměr"] as const;
+const STEPS = [
+  "Konzultace",
+  "Role",
+  "Konzultantské desatero",
+  "Záměr",
+] as const;
 
 type Props = {
   preparationId: string;
@@ -40,6 +49,7 @@ type Props = {
   learningEcho: ReflectionLearningEcho | null;
   /** Souhrn sebeohodnocení rolí; null pokud nepřihlášen (nemělo by nastat). */
   roleSelfEval: PreparationRoleSelfEvalSnapshot | null;
+  principles: Principle[];
 };
 
 export function PreparationWizard({
@@ -48,6 +58,7 @@ export function PreparationWizard({
   roleGroups,
   learningEcho,
   roleSelfEval,
+  principles,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -186,21 +197,32 @@ export function PreparationWizard({
         <Button variant="ghost" size="sm" asChild>
           <Link href="/preparations">← Všechny přípravy</Link>
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={pending}
-          onClick={onSaveDraftClick}
-        >
-          Uložit rozpracované
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <RecordDeleteButton
+            recordId={preparationId}
+            deleteAction={deletePreparation}
+            redirectTo="/preparations"
+            title="Smazat tuto přípravu?"
+            description="Záznam bude trvale odstraněn. Pokud k němu vede navázaná reflexe, z reflexe zmizí jen odkaz na přípravu."
+            confirmLabel="Smazat přípravu"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={pending}
+            onClick={onSaveDraftClick}
+          >
+            Uložit rozpracované
+          </Button>
+        </div>
       </nav>
 
       <header className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          Připravte se na schůzku vědomě — role k posílení a tlumení, krátký
-          záměr. Po schůzce můžete zahájit reflexi a porovnat plán s realitou.
+          Připravte se na schůzku vědomě — role k posílení a tlumení, připomenutí
+          principů z Konzultantského desatera a krátký záměr. Po schůzce můžete
+          zahájit reflexi a porovnat plán s realitou.
         </p>
         <div className="flex flex-wrap gap-2" aria-label="Průběh">
           {STEPS.map((label, i) => (
@@ -239,7 +261,7 @@ export function PreparationWizard({
         aria-live="polite"
         aria-label={STEPS[step]}
       >
-        {(step === 0 || step === 2) && roleSelfEval ? (
+        {(step === 0 || step === 3) && roleSelfEval ? (
           <PreparationSelfEvalContextHint roleSelfEval={roleSelfEval} />
         ) : null}
 
@@ -298,6 +320,10 @@ export function PreparationWizard({
         ) : null}
 
         {step === 2 ? (
+          <PreparationDesateroStepContent principles={principles} />
+        ) : null}
+
+        {step === 3 ? (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               Krátký behaviorální záměr nebo varování pro sebe — uvidíte ho znovu

@@ -23,8 +23,9 @@ export const reflectionAssistantStateV1Schema = z.object({
   v: z.literal(1),
   phase: assistantPhaseSchema,
   questions: z.array(assistantQuestionSchema),
-  answers: z.record(z.string(), z.string()),
-  anchorRoleIds: z.array(z.string()).max(3),
+  answers: z.record(z.string(), z.string()).default({}),
+  /** V JSON z API někdy chybí — bez defaultu selže parse a celý stav asistenta zmizí po obnovení. */
+  anchorRoleIds: z.array(z.string()).max(3).default([]),
   proposal: assistantProposalSchema.optional(),
   lastError: z.string().optional(),
 });

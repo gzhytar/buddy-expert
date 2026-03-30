@@ -7,7 +7,10 @@ import {
 } from "@/lib/orientation/role-self-eval-queries";
 import { getPreparationForUser } from "@/lib/preparation/actions";
 import { getLatestReflectionLearningEchoForUser } from "@/lib/reflection/actions";
-import { getRolesGroupedByPhase } from "@/lib/queries/orientation";
+import {
+  getPrinciplesOrdered,
+  getRolesGroupedByPhase,
+} from "@/lib/queries/orientation";
 import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ id: string }> };
@@ -30,8 +33,9 @@ export default async function PreparationDetailPage({ params }: Props) {
   const session = await auth();
   const userId = session?.user?.id ?? null;
 
-  const [roleGroups, learningEcho, selfEval] = await Promise.all([
+  const [roleGroups, principles, learningEcho, selfEval] = await Promise.all([
     getRolesGroupedByPhase(),
+    getPrinciplesOrdered(),
     getLatestReflectionLearningEchoForUser(),
     userId
       ? getRoleSelfEvalSummaryForUser(userId)
@@ -45,6 +49,7 @@ export default async function PreparationDetailPage({ params }: Props) {
       preparationId={id}
       initial={data}
       roleGroups={roleGroups}
+      principles={principles}
       learningEcho={learningEcho}
       roleSelfEval={roleSelfEval}
     />

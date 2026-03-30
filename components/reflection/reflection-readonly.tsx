@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReflectionDetail } from "@/lib/reflection/actions";
+import { ReflectionReadOnlyDelete } from "@/components/reflection/reflection-readonly-delete";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
 import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
 import type { Principle } from "@/lib/db/schema";
@@ -40,10 +41,11 @@ export function ReflectionReadOnly({ data, principles, roleGroups }: Props) {
 
   return (
     <div className="space-y-8">
-      <nav>
+      <nav className="flex flex-wrap items-center justify-between gap-3">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/reflections">← Všechny reflexe</Link>
         </Button>
+        <ReflectionReadOnlyDelete reflectionId={session.id} />
       </nav>
       <header className="space-y-2">
         <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">

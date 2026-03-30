@@ -108,20 +108,33 @@ Treat **4** as the default rhythm step unless density requires 3 or 5.
 
 ## Reference cards — Konzultantské desatero & roles (extracted)
 
-Shared **article** shell (see `OrientationPrincipleCard`, `ConsultingRoleCard`):
+### Shared **article** shell (`OrientationPrincipleCard`, `ConsultingRoleCard`)
 
-- Outer: `rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md motion-reduce:transition-none overflow-hidden`
-- **Left rail:** principle cards (desatero) → `border-l-4 border-l-primary/45`; roles → `border-l-4` + `phaseLeftBorderClass` → CSS vars in `lib/consulting-roles/card-content.ts` (`contract-frame` → zakázka, `company-diagnosis` → diagnostika, `leading-session` → vedení, `solution-creation` → tvorba; unknown phase → `border-l-border`)
+- Outer: `rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-200 hover:shadow-md motion-reduce:transition-none overflow-hidden`
 - **Focus within:** `focus-within:ring-2 focus-within:ring-ring/60 focus-within:ring-offset-2 focus-within:ring-offset-background` (+ motion-reduce clears ring)
-- **Header strip:** `flex flex-row items-center justify-between gap-4 sm:gap-5 border-b border-border/60 bg-muted/10 px-4 py-3 sm:px-5 sm:py-4 dark:bg-muted/5`
-- **Title block:** `min-w-0 flex-1 space-y-1.5`; title `font-display text-base font-semibold sm:text-lg tracking-tight`; optional summary `text-[13px] font-medium leading-snug text-foreground/80 sm:max-w-xl`
-- **Illustration column:** `w-[160px] sm:w-[180px] lg:w-[200px] shrink-0` + `PrincipleIllustration` `variant="card"` and `rounded-lg border-border/50 shadow-sm`
-- **Body:** `space-y-4 px-4 py-4 sm:px-5 sm:py-5`
-- **Two-column grid (tips / stories or useful / risks):** `grid gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6 lg:items-start max-w-5xl`
-- **“Soft” panel (stories):** `rounded-xl border border-muted-foreground/15 px-3 py-3 sm:px-4 sm:py-3.5 bg-muted/25 dark:bg-muted/15`
-- **Warning panel (role risks):** `rounded-xl border border-amber-500/20 bg-amber-500/[0.04] dark:bg-amber-500/[0.08]`; headings + list `amber-*` tints for hierarchy
-- **List bullets (useful):** `list-disc list-outside pl-4 marker:text-primary/70`
-- **Footer meta strip:** `border-t border-border/60 bg-muted/10 px-4 py-2 sm:px-5 dark:bg-muted/5` + `text-[10px] text-muted-foreground`
+- **Body section padding:** `space-y-4 px-4 py-4 sm:px-5 sm:py-5`
+- **Two-column grid (detail panels):** `grid gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6 lg:items-start max-w-5xl`
+- **Footer meta strip:** `border-t border-border/60 bg-muted/10 px-4 py-2 sm:px-5 dark:bg-muted/5` + `text-[10px] leading-snug text-muted-foreground`
+
+### Principle card — `OrientationPrincipleCard`
+
+- **Left rail:** `border-l-4 border-l-primary/45` (desatero accent; role cards use phase rail instead)
+- **Header:** same **hero** stack as `ConsultingRoleCard` — `relative isolate min-h-[168px] sm:min-h-[188px]`, absolute `PrincipleIllustration` `variant="hero"`, identical vignette + gradient readability layers, foreground `relative z-[1]` with title `drop-shadow-sm` and summary `text-[13px] font-medium leading-snug text-foreground/90 max-w-2xl`; `aria-describedby` when summary present; no meters row
+- **Tips column:** section label `text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-muted-foreground`; body `text-[13px] leading-snug text-foreground/88 whitespace-pre-line`
+- **Stories panel (“soft”):** `rounded-xl border border-muted-foreground/15 px-3 py-3 sm:px-4 sm:py-3.5 bg-muted/25 dark:bg-muted/15` + same label pattern as tips
+
+### Consulting role card — `ConsultingRoleCard` (orientation roles)
+
+- **Left rail:** `border-l-4` + `phaseLeftBorderClass(phaseKey)` → `lib/consulting-roles/card-content.ts` maps `contract-frame` / `company-diagnosis` / `leading-session` / `solution-creation` to `--jic-phase-*-border`; unknown → `border-l-border`
+- **Header (hero, not sidebar):** `relative isolate min-h-[168px] sm:min-h-[188px] overflow-hidden border-b border-border/60`
+  - **Image layer:** absolute inset `PrincipleIllustration` `variant="hero"`, `priority` when `illustrationPriority`; `min-h` matches header
+  - **Readability stack (all `pointer-events-none`, `aria-hidden`):** vignette `bg-black/10 dark:bg-black/17`; horizontal gradients `from-background` / `via-background/93` / `to-background/78` (dark variants slightly stronger); `from-background/54 to-transparent` from right; vertical `from-background/52` fade from bottom
+  - **Foreground:** `relative z-[1] space-y-2 px-4 py-3 sm:px-5 sm:py-4` → title `font-display text-base sm:text-lg font-semibold tracking-tight text-foreground drop-shadow-sm`; `summaryLine` `text-[13px] font-medium leading-snug text-foreground/90`; `whatItDoes` block uses inline label `font-medium text-foreground/80` (“Co role dělá:”) + `whitespace-pre-wrap` body `text-foreground/90`
+  - **Meters:** `RoleStrengthMeters` sits in header under copy
+- **Useful panel (emerald):** `rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] dark:bg-emerald-500/[0.08] px-3 py-3 sm:px-4 sm:py-3.5`; heading `text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-emerald-900/85 dark:text-emerald-200/95`; list `list-outside list-disc pl-4 text-[13px] leading-snug text-emerald-950/88 dark:text-emerald-50/88 marker:text-emerald-500/60 dark:marker:text-emerald-400/60`
+- **Risks panel (amber):** same structure as useful with `amber-*` tokens (label “Rizika při přepálení”)
+- **Self-eval (optional):** `showSelfEval` → `RoleSelfEvalControls` with `key` including sentiment for reset
+- **Empty body:** if no useful/risk bullets, content grid omitted entirely
 
 ---
 
@@ -130,6 +143,7 @@ Shared **article** shell (see `OrientationPrincipleCard`, `ConsultingRoleCard`):
 | Variant | Use |
 |---------|-----|
 | `card` | `aspect-[4/3]`, absolute fill `img`, paper-style wrapper `bg-[oklch(99%_0.01_95)] dark:bg-card` |
+| `hero` | Full-bleed `object-cover` for orientation role / principle card headers; decorative (`alt=""`, `aria-hidden`) |
 | `sidebar` | `min-h` breakpoints; `object-contain` + `p-2`; optional `density="compact"` |
 | `inline` | `size-20 sm:size-24` wizard thumbnails |
 | **Missing / broken** | Dashed `border-border`, `bg-muted/30`, `ImageIcon`, `text-[11px]` hint |

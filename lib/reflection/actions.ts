@@ -20,6 +20,10 @@ import {
   type ReflectionAssistantStateV1,
 } from "@/lib/reflection/assistant-state";
 import {
+  GENERIC_DB_ERROR_CS,
+  parseRecordIdPayload,
+} from "@/lib/validation/record-id";
+import {
   reflectionCompletePayloadSchema,
   reflectionDraftPayloadSchema,
 } from "./validation";
@@ -431,6 +435,41 @@ export async function completeReflection(
 
   revalidatePath("/reflections");
   revalidatePath(`/reflections/${data.id}`);
+  revalidatePath("/preparations", "layout");
+  return { ok: true };
+}
+
+export async function deleteReflection(
+  raw: unknown,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { ok: false, error: "Neautorizováno" };
+  }
+
+  const parsed = parseRecordIdPayload(raw);
+  if (!parsed.ok) return parsed;
+
+  const id = parsed.id;
+  try {
+    const removed = await db
+      .delete(reflectionSessions)
+      .where(
+        and(
+          eq(reflectionSessions.id, id),
+          eq(reflectionSessions.userId, session.user.id),
+        ),
+      )
+      .returning({ id: reflectionSessions.id });
+    if (!removed.length) {
+      return { ok: false, error: "Reflexe nebyla nalezena" };
+    }
+  } catch {
+    return { ok: false, error: GENERIC_DB_ERROR_CS };
+  }
+
+  revalidatePath("/reflections");
+  revalidatePath(`/reflections/${id}`);
   revalidatePath("/preparations", "layout");
   return { ok: true };
 }

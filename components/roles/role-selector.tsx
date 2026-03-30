@@ -32,6 +32,8 @@ type ReflectionProps = {
   calibrationByRole: Record<string, Calibration>;
   onToggleRole: (id: string, checked: boolean) => void;
   onSetCalibration: (roleId: string, value: Calibration) => void;
+  /** Dokončené sebeohodnocení + neprázdné → dvě sekce (zaměření / ostatní), jako v přípravě. */
+  focusPartition?: { focusRoleIds: string[] };
 };
 
 type PreparationProps = {
@@ -73,6 +75,33 @@ function splitGroupsByFocus(
 function renderPreparationGroups(
   groups: RolePhaseGroup[],
   props: PreparationProps,
+  reducedMotion: boolean,
+) {
+  const nonEmpty = groups.filter((g) => g.roles.length > 0);
+  if (nonEmpty.length === 0) {
+    return (
+      <p className="px-2 py-4 text-sm text-muted-foreground">
+        V této části zatím nejsou žádné role.
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-6">
+      {nonEmpty.map((g) => (
+        <div key={g.phaseKey} className="space-y-3">
+          <h2 className="font-display text-lg font-semibold">{g.phaseLabel}</h2>
+          <ul className="list-none space-y-3 p-0">
+            {renderRoleRows(g.roles, props, reducedMotion)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function renderReflectionGroups(
+  groups: RolePhaseGroup[],
+  props: ReflectionProps,
   reducedMotion: boolean,
 ) {
   const nonEmpty = groups.filter((g) => g.roles.length > 0);
@@ -340,12 +369,13 @@ function PreparationPhaseDetails({
 export function RoleSelector(props: RoleSelectorProps) {
   const reducedMotion = useReducedMotion() ?? false;
 
-  if (
-    props.mode === "preparation" &&
-    props.focusPartition &&
-    props.focusPartition.focusRoleIds.length > 0
-  ) {
-    const focusSet = new Set(props.focusPartition.focusRoleIds);
+  const focusPartition =
+    props.mode === "preparation" || props.mode === "reflection"
+      ? props.focusPartition
+      : undefined;
+
+  if (focusPartition && focusPartition.focusRoleIds.length > 0) {
+    const focusSet = new Set(focusPartition.focusRoleIds);
     const { focus, other } = splitGroupsByFocus(props.roleGroups, focusSet);
     const hasOther = other.some((g) => g.roles.length > 0);
 
@@ -356,12 +386,16 @@ export function RoleSelector(props: RoleSelectorProps) {
           title="Role, ve kterých chcete růst"
           subtitle="(z orientace)"
         >
-          {renderPreparationGroups(focus, props, reducedMotion)}
+          {props.mode === "preparation"
+            ? renderPreparationGroups(focus, props, reducedMotion)
+            : renderReflectionGroups(focus, props, reducedMotion)}
         </PreparationPhaseDetails>
 
         {hasOther ? (
           <PreparationPhaseDetails title="Ostatní situační role">
-            {renderPreparationGroups(other, props, reducedMotion)}
+            {props.mode === "preparation"
+              ? renderPreparationGroups(other, props, reducedMotion)
+              : renderReflectionGroups(other, props, reducedMotion)}
           </PreparationPhaseDetails>
         ) : null}
       </div>

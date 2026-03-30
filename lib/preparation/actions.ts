@@ -11,6 +11,10 @@ import {
 import { and, desc, eq, inArray, isNotNull, notInArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
+  GENERIC_DB_ERROR_CS,
+  parseRecordIdPayload,
+} from "@/lib/validation/record-id";
+import {
   preparationCompletePayloadSchema,
   preparationDraftPayloadSchema,
 } from "./validation";
@@ -238,6 +242,63 @@ export async function completePreparation(
 
   revalidatePath("/preparations");
   revalidatePath(`/preparations/${data.id}`);
+  revalidatePath("/reflections");
+  return { ok: true };
+}
+
+export async function deletePreparation(
+  raw: unknown,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { ok: false, error: "Neautorizováno" };
+  }
+
+  const parsed = parseRecordIdPayload(raw);
+  if (!parsed.ok) return parsed;
+
+  const id = parsed.id;
+  const userId = session.user.id;
+
+  try {
+    const [owned] = await db
+      .select({ id: preparationSessions.id })
+      .from(preparationSessions)
+      .where(
+        and(
+          eq(preparationSessions.id, id),
+          eq(preparationSessions.userId, userId),
+        ),
+      )
+      .limit(1);
+    if (!owned) {
+      return { ok: false, error: "Příprava nebyla nalezena" };
+    }
+
+    const t = nowIso();
+    await db
+      .update(reflectionSessions)
+      .set({ preparationId: null, updatedAt: t })
+      .where(eq(reflectionSessions.preparationId, id));
+
+    const removed = await db
+      .delete(preparationSessions)
+      .where(
+        and(
+          eq(preparationSessions.id, id),
+          eq(preparationSessions.userId, userId),
+        ),
+      )
+      .returning({ id: preparationSessions.id });
+    if (!removed.length) {
+      return { ok: false, error: "Příprava nebyla nalezena" };
+    }
+  } catch {
+    return { ok: false, error: GENERIC_DB_ERROR_CS };
+  }
+
+  revalidatePath("/preparations");
+  revalidatePath(`/preparations/${id}`);
   revalidatePath("/reflections");
   return { ok: true };
 }
