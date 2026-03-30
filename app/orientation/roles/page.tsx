@@ -1,12 +1,23 @@
 import Link from "next/link";
+import { auth } from "@/auth";
 import { ConsultingRoleCard } from "@/components/orientation/consulting-role-card";
+import { OrientationRoleSelfEvalNudge } from "@/components/orientation/orientation-role-self-eval-nudge";
+import { OrientationRolesFocusReminder } from "@/components/orientation/orientation-roles-focus-reminder";
 import { Button } from "@/components/ui/button";
+import { getRoleSelfEvalSummaryForUser } from "@/lib/orientation/role-self-eval-queries";
 import { getRolesGroupedByPhase } from "@/lib/queries/orientation";
 
 export const dynamic = "force-dynamic";
 
 export default async function OrientationRolesPage() {
-  const groups = await getRolesGroupedByPhase();
+  const session = await auth();
+  const userId = session?.user?.id ?? null;
+  const [groups, selfEval] = await Promise.all([
+    getRolesGroupedByPhase(),
+    userId
+      ? getRoleSelfEvalSummaryForUser(userId)
+      : Promise.resolve(null),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -25,6 +36,17 @@ export default async function OrientationRolesPage() {
           <strong className="text-foreground">vyvážená</strong> nebo{" "}
           <strong className="text-foreground">přepálená</strong>.
         </p>
+        {selfEval && !selfEval.isComplete ? (
+          <OrientationRoleSelfEvalNudge
+            evaluatedCount={selfEval.evaluatedCount}
+            totalRoles={selfEval.totalRoles}
+          />
+        ) : null}
+        {selfEval?.isComplete ? (
+          <OrientationRolesFocusReminder
+            focusRoleNames={selfEval.focusRoleNames}
+          />
+        ) : null}
       </header>
       <div className="space-y-12">
         {groups.map((g) => (
@@ -50,6 +72,12 @@ export default async function OrientationRolesPage() {
                   <ConsultingRoleCard
                     role={r}
                     illustrationPriority={i < 2}
+                    showSelfEval={userId != null}
+                    initialSelfEvalSentiment={
+                      userId && selfEval
+                        ? (selfEval.mapByRoleId[r.id] ?? null)
+                        : null
+                    }
                   />
                 </li>
               ))}

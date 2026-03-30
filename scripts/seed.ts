@@ -191,6 +191,9 @@ async function main() {
         usefulBullets: JSON.stringify(c.usefulBullets),
         riskBullets: JSON.stringify(c.riskBullets),
         imagePath,
+        strengthObsah: c.strengthObsah,
+        strengthLide: c.strengthLide,
+        strengthDelivery: c.strengthDelivery,
       })
       .onConflictDoUpdate({
         target: consultingRoles.id,
@@ -207,6 +210,9 @@ async function main() {
           usefulBullets: JSON.stringify(c.usefulBullets),
           riskBullets: JSON.stringify(c.riskBullets),
           imagePath,
+          strengthObsah: c.strengthObsah,
+          strengthLide: c.strengthLide,
+          strengthDelivery: c.strengthDelivery,
         },
       });
   }

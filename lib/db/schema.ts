@@ -120,7 +120,45 @@ export const consultingRoles = pgTable("consulting_roles", {
   riskBullets: text("risk_bullets"),
   /** Cesta podle `public/`, např. `/roles_situator.png` */
   imagePath: text("image_path"),
+  /** Síla role 1–5 podle karet JIC — tři dimenze */
+  strengthObsah: integer("strength_obsah").notNull().default(3),
+  strengthLide: integer("strength_lide").notNull().default(3),
+  strengthDelivery: integer("strength_delivery").notNull().default(3),
 });
+
+/** Sebeohodnocení situační role (orientace) — jedna volba na uživatele a roli. */
+export const roleSelfEvalSentiments = [
+  "love",
+  "focus_improve",
+  "dislike",
+  "neutral_defer",
+] as const;
+
+export type RoleSelfEvalSentiment = (typeof roleSelfEvalSentiments)[number];
+
+export const userConsultingRoleSelfEvals = pgTable(
+  "user_consulting_role_self_evals",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    roleId: text("role_id")
+      .notNull()
+      .references(() => consultingRoles.id, { onDelete: "cascade" }),
+    sentiment: text("sentiment", {
+      enum: [
+        roleSelfEvalSentiments[0],
+        roleSelfEvalSentiments[1],
+        roleSelfEvalSentiments[2],
+        roleSelfEvalSentiments[3],
+      ],
+    }).notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.roleId] }),
+  }),
+);
 
 export const preparationSessions = pgTable("preparation_sessions", {
   id: text("id").primaryKey(),

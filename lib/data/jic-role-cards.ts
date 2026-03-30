@@ -19,6 +19,10 @@ export type JicRoleCardSeed = {
   usefulBullets: string[];
   /** Body „Rizika při přepálení“ */
   riskBullets: string[];
+  /** Síla role 1–5 podle karet JIC (obsah / lidé / delivery) */
+  strengthObsah: number;
+  strengthLide: number;
+  strengthDelivery: number;
 };
 
 export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
@@ -44,6 +48,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "uzavře výklad příliš brzo a přehlédne nová data",
       "drží se původního rámce, i když se téma už posunulo",
     ],
+    strengthObsah: 4,
+    strengthLide: 2,
+    strengthDelivery: 3,
   },
   {
     id: "r-strazce-mandatu",
@@ -67,6 +74,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "podcení neformální vliv a mocenské vazby",
       "nechá se ukolébat nejdostupnějším kontaktem",
     ],
+    strengthObsah: 3,
+    strengthLide: 4,
+    strengthDelivery: 4,
   },
   {
     id: "r-cilotvurce",
@@ -90,6 +100,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "nadeklaruje cíl, který není reálně dosažitelný",
       "zamění živou práci za formulářové cvičení",
     ],
+    strengthObsah: 5,
+    strengthLide: 2,
+    strengthDelivery: 5,
   },
   {
     id: "r-hlidac-zdroju",
@@ -113,6 +126,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "zúží rozhovor jen na to, co je snadné",
       "nechá se stáhnout do detailu, který ještě není potřeba",
     ],
+    strengthObsah: 5,
+    strengthLide: 1,
+    strengthDelivery: 5,
   },
   {
     id: "r-mapovac-dna",
@@ -136,6 +152,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "sbírá zajímavosti, které nepomáhají rozhodnutí",
       "přecení příběh a podcení současná data",
     ],
+    strengthObsah: 5,
+    strengthLide: 3,
+    strengthDelivery: 3,
   },
   {
     id: "r-diagnostik-roli",
@@ -159,6 +178,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "vyrábí příliš jemné nuance bez praktického dopadu",
       "vyslovuje rychlé soudy bez dostatečných důkazů",
     ],
+    strengthObsah: 5,
+    strengthLide: 4,
+    strengthDelivery: 3,
   },
   {
     id: "r-posluchac",
@@ -181,6 +203,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "bojí se přerušit a doprecizovat nepřesnost",
       "zamění empatii za souhlas s klientovou verzí reality",
     ],
+    strengthObsah: 3,
+    strengthLide: 5,
+    strengthDelivery: 2,
   },
   {
     id: "r-validator",
@@ -204,6 +229,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "rozbije tempo sezení neustálým dokazováním",
       "ověřuje i tam, kde už je potřeba přejít k akci",
     ],
+    strengthObsah: 5,
+    strengthLide: 2,
+    strengthDelivery: 4,
   },
   {
     id: "r-moderator-sezeni",
@@ -227,6 +255,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "přereguluje skupinu a ubere jí spontaneitu",
       "příliš hlídá čas a zapomene na kvalitu rozhodnutí",
     ],
+    strengthObsah: 3,
+    strengthLide: 4,
+    strengthDelivery: 5,
   },
   {
     id: "r-facilitator-dohody",
@@ -250,6 +281,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "nutí skupinu do falešného konsenzu",
       "vyhne se těžkému rozhodnutí ve jménu pohody",
     ],
+    strengthObsah: 2,
+    strengthLide: 5,
+    strengthDelivery: 4,
   },
   {
     id: "r-konfrontator",
@@ -273,6 +307,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "moralizuje nebo si dokazuje vlastní pravdu",
       "uhýbá před nepohodlným, i když je to jádro problému",
     ],
+    strengthObsah: 3,
+    strengthLide: 4,
+    strengthDelivery: 3,
   },
   {
     id: "r-kalibrator",
@@ -296,6 +333,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "vše relativizuje místo jasné volby přístupu",
       "nepřizná si vlastní vliv na dynamiku sezení",
     ],
+    strengthObsah: 3,
+    strengthLide: 3,
+    strengthDelivery: 3,
   },
   {
     id: "r-artefaktar",
@@ -319,6 +359,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "začne artefakt dělat za klienta místo s klientem",
       "upřednostní formu před obsahem a rozhodnutím",
     ],
+    strengthObsah: 5,
+    strengthLide: 3,
+    strengthDelivery: 5,
   },
   {
     id: "r-navrhar-reseni",
@@ -341,6 +384,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "navrhne víc, než firma unese",
       "propadne vlastní oblíbené metodě a ignoruje realitu",
     ],
+    strengthObsah: 5,
+    strengthLide: 2,
+    strengthDelivery: 5,
   },
   {
     id: "r-aktivator-klienta",
@@ -364,6 +410,9 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "poučuje místo podpory a učení",
       "převezme práci a vyrobí na sobě závislost",
     ],
+    strengthObsah: 2,
+    strengthLide: 5,
+    strengthDelivery: 4,
   },
   {
     id: "r-kurator-navaznosti",
@@ -387,5 +436,8 @@ export const JIC_ROLE_CARDS: JicRoleCardSeed[] = [
       "přepojí klienta příliš brzy nebo bez dobrého briefu",
       "sbírá data, ale nevyvozuje z nich další krok",
     ],
+    strengthObsah: 4,
+    strengthLide: 3,
+    strengthDelivery: 5,
   },
 ];

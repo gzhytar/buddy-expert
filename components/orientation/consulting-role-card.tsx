@@ -1,7 +1,9 @@
-import type { ConsultingRole } from "@/lib/db/schema";
+import type { ConsultingRole, RoleSelfEvalSentiment } from "@/lib/db/schema";
 import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
 import { parseBulletList, phaseLeftBorderClass } from "@/lib/consulting-roles/card-content";
 import { PrincipleIllustration } from "@/components/principles/principle-illustration";
+import { RoleSelfEvalControls } from "@/components/orientation/role-self-eval-controls";
+import { RoleStrengthMeters } from "@/components/orientation/role-strength-meters";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -9,12 +11,17 @@ type Props = {
   className?: string;
   /** Nízké indexy = eager load ilustrace na první kartě ve fázi */
   illustrationPriority?: boolean;
+  /** Zobrazit sebeohodnocení role (přihlášený expert). */
+  showSelfEval?: boolean;
+  initialSelfEvalSentiment?: RoleSelfEvalSentiment | null;
 };
 
 export function ConsultingRoleCard({
   role,
   className,
   illustrationPriority = false,
+  showSelfEval = false,
+  initialSelfEvalSentiment = null,
 }: Props) {
   const useful = parseBulletList(role.usefulBullets);
   const risks = parseBulletList(role.riskBullets);
@@ -36,19 +43,27 @@ export function ConsultingRoleCard({
     >
       <div className="flex flex-col">
         {/* HEADER AREA */}
-        <header className="flex flex-row items-center justify-between gap-4 sm:gap-5 border-b border-border/60 bg-muted/10 px-4 py-3 sm:px-5 sm:py-4 dark:bg-muted/5">
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <h3
-              id={`role-title-${role.id}`}
-              className="font-display text-base font-semibold tracking-tight text-foreground sm:text-lg"
-            >
-              {role.name}
-            </h3>
-            {role.summaryLine ? (
-              <p className="text-[13px] font-medium leading-snug text-foreground/80 sm:max-w-xl">
-                {role.summaryLine}
-              </p>
-            ) : null}
+        <header className="flex flex-row items-start justify-between gap-4 sm:gap-5 border-b border-border/60 bg-muted/10 px-4 py-3 sm:px-5 sm:py-4 dark:bg-muted/5">
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="space-y-1.5">
+              <h3
+                id={`role-title-${role.id}`}
+                className="font-display text-base font-semibold tracking-tight text-foreground sm:text-lg"
+              >
+                {role.name}
+              </h3>
+              {role.summaryLine ? (
+                <p className="text-[13px] font-medium leading-snug text-foreground/80 sm:max-w-xl">
+                  {role.summaryLine}
+                </p>
+              ) : null}
+            </div>
+            <RoleStrengthMeters
+              roleId={role.id}
+              obsah={role.strengthObsah}
+              lide={role.strengthLide}
+              delivery={role.strengthDelivery}
+            />
           </div>
 
           {/* IMAGE */}
@@ -130,10 +145,17 @@ export function ConsultingRoleCard({
           ) : null}
         </div>
 
+        {showSelfEval ? (
+          <RoleSelfEvalControls
+            key={`${role.id}-${initialSelfEvalSentiment ?? "pending"}`}
+            roleId={role.id}
+            initialSentiment={initialSelfEvalSentiment}
+          />
+        ) : null}
+
         <footer className="border-t border-border/60 bg-muted/10 px-4 py-2 sm:px-5 dark:bg-muted/5">
           <p className="text-[10px] leading-snug text-muted-foreground">
-            Konzultantské karty JIC — pracovní verze (líc / rub). Síla role: obsah,
-            lidé, delivery.
+            Konzultantské karty JIC — pracovní verze (líc / rub).
           </p>
         </footer>
       </div>
