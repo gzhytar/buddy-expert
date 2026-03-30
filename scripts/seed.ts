@@ -1,5 +1,5 @@
 /**
- * Idempotent seed: demo user, 10 principles, 16 roles (JIC karty).
+ * Idempotent seed: demo user, Konzultantské desatero (10 principů), 16 roles (JIC karty).
  * Run: npm run db:seed (načte .env přes scripts/run-seed.mjs)
  * Password: SEED_DEMO_PASSWORD env or default `buddy-dev-1`
  */

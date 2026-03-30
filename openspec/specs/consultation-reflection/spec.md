@@ -24,7 +24,7 @@ The system SHALL let the expert attach optional consultation context consisting 
 
 ### Requirement: Select relevant principles
 
-The system SHALL let the expert select one or more of the ten JIC principles as relevant to the completed consultation.
+The system SHALL let the expert select one or more principles from **Konzultantské desatero** (the ten JIC consulting principles) as relevant to the completed consultation.
 
 #### Scenario: Principles multi-select
 
@@ -78,7 +78,7 @@ The system SHALL restrict read and write access to a reflection session to the o
 
 ### Requirement: Links to orientation from reflection
 
-The system SHALL provide navigation from the reflection flow to orientation content (principles and roles) so experts can refresh the shared language without losing in-progress work where technically feasible.
+The system SHALL provide navigation from the reflection flow to orientation content (Konzultantské desatero and roles) so experts can refresh the shared language without losing in-progress work where technically feasible.
 
 #### Scenario: Open roles reference mid-reflection
 

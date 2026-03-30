@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { OrientationPrincipleCard } from "@/components/orientation/principle-card";
 import { Button } from "@/components/ui/button";
 import { getPrinciplesOrdered } from "@/lib/queries/orientation";
+
+export const metadata: Metadata = {
+  title: "Konzultantské desatero",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +22,12 @@ export default async function OrientationPrinciplesPage() {
       </nav>
       <header className="space-y-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight">
-          Deset principů konzultování
+          Konzultantské desatero
         </h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          Rámec kvality pro reflexi — nikoliv rigidní checklist. U každého principu
-          najdete krátké tipy a ilustrativní příběh z praxe.
+          Konzultantské desatero JIC — deset principů konzultování jako rámec kvality pro reflexi,
+          nikoliv rigidní checklist. U každého principu najdete krátké tipy a ilustrativní příběh z
+          praxe.
         </p>
       </header>
       <ol className="list-none space-y-4 p-0">

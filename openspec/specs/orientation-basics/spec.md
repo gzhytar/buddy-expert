@@ -13,13 +13,13 @@ The system SHALL present a concise summary of the JIC mission and consultation s
 - **WHEN** an authenticated expert navigates to the orientation entry point
 - **THEN** the system displays mission and service-frame summary content suitable as context for consultation work
 
-### Requirement: Ten consulting principles as reference
+### Requirement: Konzultantské desatero as reference
 
-The system SHALL display all ten JIC consulting principles as reference material, each with a stable identifier and human-readable title or short label so they can be referenced consistently from reflection flows.
+The system SHALL display **Konzultantské desatero** — the ten JIC consulting principles — as reference material, each with a stable identifier and human-readable title or short label so they can be referenced consistently from reflection flows.
 
-#### Scenario: Expert views principles list
+#### Scenario: Expert views Konzultantské desatero
 
-- **WHEN** an authenticated expert opens the principles section of orientation
+- **WHEN** an authenticated expert opens the Konzultantské desatero section of orientation
 - **THEN** the system lists exactly ten principles with identifiable labels matching the JIC brand framework described in the product specification
 
 ### Requirement: Sixteen situational roles by phase

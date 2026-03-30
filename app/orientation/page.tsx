@@ -9,8 +9,8 @@ const links = [
   },
   {
     href: "/orientation/principles",
-    title: "Deset principů",
-    description: "Referenční seznam principů konzultování JIC pro reflexi.",
+    title: "Konzultantské desatero",
+    description: "Referenční přehled Konzultantského desatera JIC pro reflexi.",
   },
   {
     href: "/orientation/roles",

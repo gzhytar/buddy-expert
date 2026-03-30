@@ -9,7 +9,7 @@ Orientační stránka `/orientation/principles` načítá principy z tabulky `pr
 - U každého z 10 principů uložit a zobrazit dva samostatné textové bloky: **Tipy a triky** a **Příběhy z praxe**.
 - Zachovat stávající titulek, pořadí, `id` principu a ilustrace.
 - Zajistit migraci schématu kompatibilní s Postgres (Neon) — typy bez SQLite-specific zkratek, kde to jde.
-- Naplnit oba bloky smysluplným českým obsahem pro všech deset principů (seed).
+- Naplnit oba bloky smysluplným českým obsahem pro všech deset principů Konzultantského desatera (seed).
 
 **Non-Goals:**
 

@@ -6,7 +6,7 @@
 
 ## 2. Seed a obsah
 
-- [x] 2.1 Rozšířit `scripts/seed.ts`: pro každý z 10 principů doplnit neprázdný český text „Tipy a triky“ a „Příběhy z praxe“ (ilustrativní situace, neutrální tón, bez moralizování).
+- [x] 2.1 Rozšířit `scripts/seed.ts`: pro každý z 10 principů Konzultantského desatera doplnit neprázdný český text „Tipy a triky“ a „Příběhy z praxe“ (ilustrativní situace, neutrální tón, bez moralizování).
 - [x] 2.2 V `onConflictDoUpdate` zahrnout aktualizaci nových sloupců, aby re-seed obsah sjednotil.
 
 ## 3. Dotazy a server

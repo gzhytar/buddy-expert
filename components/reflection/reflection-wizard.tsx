@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 
 const STEPS = [
   "Konzultace",
-  "Principy",
+  "Konzultantské desatero",
   "Role",
   "Poznámka k učení",
 ] as const;
@@ -228,7 +228,7 @@ export function ReflectionWizard({
             rel="noopener noreferrer"
             className="text-primary underline underline-offset-2"
           >
-            Principy
+            Konzultantské desatero
           </a>{" "}
           nebo{" "}
           <a
@@ -331,7 +331,7 @@ export function ReflectionWizard({
         {step === 1 ? (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Které principy byly pro tuto konzultaci nejrelevantnější?
+              Které principy z Konzultantského desatera byly pro tuto konzultaci nejrelevantnější?
             </p>
             <ul className="list-none space-y-3 p-0">
               {principles.map((p) => {

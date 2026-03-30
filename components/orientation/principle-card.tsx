@@ -96,7 +96,7 @@ export function OrientationPrincipleCard({ principle, index, className }: Props)
 
         <footer className="border-t border-border/60 bg-muted/10 px-4 py-2 sm:px-5 dark:bg-muted/5">
           <p className="text-[10px] leading-snug text-muted-foreground">
-            Principy konzultování JIC — referenční materiál pro reflexi.
+            Konzultantské desatero JIC — referenční materiál pro reflexi.
           </p>
         </footer>
       </div>

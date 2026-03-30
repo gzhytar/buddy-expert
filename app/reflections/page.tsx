@@ -115,7 +115,7 @@ export default async function ReflectionsListPage({ searchParams }: Props) {
                 rel="noopener noreferrer"
                 className="text-primary underline underline-offset-2"
               >
-                principy
+                Konzultantské desatero
               </Link>{" "}
               nebo{" "}
               <Link

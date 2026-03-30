@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 const FRAME_IMAGE = "/konzultace_ramec.png";
 
 const FRAME_ALT =
-  "Sketchnote Konzultování pod hlavičkou JIC: chrám kvality konzultování stojící na třech pilířích — principy konzultování, univerzální schéma organizace a konzultační toolbox; kolem klíčové teze (zodpovědnost klienta, mandát, zpětná vazba, sdílení informací a další) a strategický cíl.";
+  "Sketchnote Konzultování pod hlavičkou JIC: chrám kvality konzultování stojící na třech pilířích — Konzultantské desatero, univerzální schéma organizace a konzultační toolbox; kolem klíčové teze (zodpovědnost klienta, mandát, zpětná vazba, sdílení informací a další) a strategický cíl.";
 
 export default function OrientationFramePage() {
   return (
@@ -20,8 +20,8 @@ export default function OrientationFramePage() {
           Mise a konzultační rámec
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
-          Přehledný model rámce — stejný jazyk, který v aplikaci propojujeme s principy
-          a situačními rolemi.
+          Přehledný model rámce — stejný jazyk, který v aplikaci propojujeme s Konzultantským
+          desaterem a situačními rolemi.
         </p>
       </header>
 
@@ -60,7 +60,7 @@ export default function OrientationFramePage() {
         <p className="text-muted-foreground leading-relaxed">
           Cílem je <strong className="text-foreground">lehké učení</strong>
           : připravujte se se záměrem, reflektujte po konzultacích a používejte stejný
-          jazyk (principy a situační role), když přemýšlíte sami nebo s kolegy.
+          jazyk (Konzultantské desatero a situační role), když přemýšlíte sami nebo s kolegy.
         </p>
         <p className="text-muted-foreground leading-relaxed">
           Když označíte reflexi jako dokončenou, budujete si osobní praxi

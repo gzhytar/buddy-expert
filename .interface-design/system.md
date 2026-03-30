@@ -20,7 +20,7 @@
 | Konzultační karty / fáze | Zakázka, diagnostika, vedení, tvorba — encoded as phase accent borders |
 | Role states | Podužitá / vyvážená / přepálená — vocabulary in copy |
 | Reflexe & příprava | Learning layer, not ops tooling |
-| Ilustrace k rolím a principům | Image-forward cards, bounded aspect |
+| Konzultantské desatero / ilustrace | Image-forward principle cards, bounded aspect |
 
 ---
 
@@ -101,17 +101,17 @@ Treat **4** as the default rhythm step unless density requires 3 or 5.
 
 - **Hub (`/orientation`):** `space-y-8`; titles `space-y-2`; `Card` inside `Link` with `block rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`; card `hover:shadow-md` + `motion-reduce:transition-none`.
 - **Child pages:** Breadcrumb `nav` + `Button variant="ghost" size="sm" asChild` → `Link` with `← Orientace` (keep Czech consistent).
-- **Principles list:** `ol.list-none space-y-4`; items `scroll-mt-20` for in-page anchor clearance.
+- **Konzultantské desatero list:** `ol.list-none space-y-4`; items `scroll-mt-20` for in-page anchor clearance.
 - **Frame figure:** Container `rounded-xl border border-border/80 bg-[oklch(99%_0.01_95)] shadow-sm dark:bg-card`; caption `text-xs text-center text-muted-foreground`; inline `code` `rounded bg-muted px-1 font-mono text-[0.7rem]`.
 
 ---
 
-## Reference cards — principles & roles (extracted)
+## Reference cards — Konzultantské desatero & roles (extracted)
 
 Shared **article** shell (see `OrientationPrincipleCard`, `ConsultingRoleCard`):
 
 - Outer: `rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md motion-reduce:transition-none overflow-hidden`
-- **Left rail:** principles → `border-l-4 border-l-primary/45`; roles → `border-l-4` + `phaseLeftBorderClass` → CSS vars in `lib/consulting-roles/card-content.ts` (`contract-frame` → zakázka, `company-diagnosis` → diagnostika, `leading-session` → vedení, `solution-creation` → tvorba; unknown phase → `border-l-border`)
+- **Left rail:** principle cards (desatero) → `border-l-4 border-l-primary/45`; roles → `border-l-4` + `phaseLeftBorderClass` → CSS vars in `lib/consulting-roles/card-content.ts` (`contract-frame` → zakázka, `company-diagnosis` → diagnostika, `leading-session` → vedení, `solution-creation` → tvorba; unknown phase → `border-l-border`)
 - **Focus within:** `focus-within:ring-2 focus-within:ring-ring/60 focus-within:ring-offset-2 focus-within:ring-offset-background` (+ motion-reduce clears ring)
 - **Header strip:** `flex flex-row items-center justify-between gap-4 sm:gap-5 border-b border-border/60 bg-muted/10 px-4 py-3 sm:px-5 sm:py-4 dark:bg-muted/5`
 - **Title block:** `min-w-0 flex-1 space-y-1.5`; title `font-display text-base font-semibold sm:text-lg tracking-tight`; optional summary `text-[13px] font-medium leading-snug text-foreground/80 sm:max-w-xl`

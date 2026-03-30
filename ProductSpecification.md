@@ -79,7 +79,7 @@ JIC chce standardizovat:
 
 V JIC už existuje rámec tří pilířů kvality konzultování:
 
-1. **Principy konzultování**
+1. **Konzultantské desatero**
 2. **Univerzální schéma organizace**
 3. **Konzultační toolbox** (aktuálně mimo hlavní scope)
 
@@ -170,7 +170,7 @@ Produkt má:
 1. zvýšit konzistenci kvality konzultací napříč experty JIC,
 2. pomoci expertům internalizovat poslání JICu a rámec zadání,
 3. podpořit sebevzdělávání experta v každodenní praxi,
-4. vytvořit sdílený jazyk pro kvalitu, principy a situativní role,
+4. vytvořit sdílený jazyk pro kvalitu, Konzultantské desatero a situativní role,
 5. zachovat individualitu experta a současně zlepšit kvalitu jeho judgmentu,
 6. ukotvit continuous improvement do každodenní práce.
 
@@ -212,7 +212,7 @@ Expert má nástroj vnímat jako pomoc pro lepší práci, ne jako compliance me
 Interakce mají být krátké, smysluplné a praktické. Cílem není víc administrativy, ale lepší myšlení.
 
 ### 6.3 Principy místo skriptů
-Produkt má posilovat principy konzultování a situativní judgment, ne přikazovat rigidní scénář schůzky.
+Produkt má posilovat Konzultantské desatero a situativní judgment, ne přikazovat rigidní scénář schůzky.
 
 ### 6.4 Relevance pro každodenní praxi
 Produkt musí přirozeně zapadat před a po reálné konzultaci.
@@ -268,15 +268,15 @@ Expert potřebuje umět:
 - učit se z nejasných a složitých situací,
 - požádat o pomoc bez stigmatizace,
 - diskutovat případy ve sdíleném jazyce,
-- propojovat vlastní praxi s posláním JICu a principy konzultování.
+- propojovat vlastní praxi s posláním JICu a Konzultantským desaterem.
 
 ---
 
 ## 9. Koncepční základy produktu
 
-## 9.1 Deset principů konzultování pod brandem JIC
+## 9.1 Konzultantské desatero pod brandem JIC
 
-JIC má definovaných 10 principů konzultování, mimo jiné že expert:
+**Konzultantské desatero** je pojmenování deseti principů konzultování JIC. Mezi ně patří mimo jiné, že expert:
 
 - konzultuje se správným člověkem,
 - na začátku situuje,
@@ -374,7 +374,7 @@ Produkt je nejlepší chápat jako:
 - **adaptivní onboarding nástroj**,
 - **reflection layer nad reálnou prací experta**,
 - **continuous improvement engine**,
-- **sdílený jazyk pro role, principy a kvalitu**,
+- **sdílený jazyk pro role, Konzultantské desatero a kvalitu**,
 - **praktický průvodce seberozvojem**,
 - **kognitivní oporu experta**.
 
@@ -390,7 +390,7 @@ Produkt není jen dokumentační systém, knihovna obsahu nebo doplněk workshop
 Nový expert potřebuje prakticky pochopit:
 - poslání JICu,
 - rámec zadání,
-- 10 principů konzultování,
+- Konzultantské desatero,
 - situativní role,
 - hranice expertovy práce.
 
@@ -398,12 +398,12 @@ Nový expert potřebuje prakticky pochopit:
 Nový expert prochází typické situace z praxe a učí se rozpoznávat:
 - co je v souladu s JIC,
 - co je mimo rámec,
-- jak se principy a role projevují v reálné situaci.
+- jak se principy Konzultantského desatera a role projevují v reálné situaci.
 
 ### UC3: Nový expert začíná používat sdílený jazyk
 Nový expert začíná o své práci mluvit skrz:
 - role,
-- principy,
+- Konzultantské desatero,
 - odpovědnost,
 - kalibraci,
 - learning loop.
@@ -460,7 +460,7 @@ Expert sdílí vybranou konzultaci nebo reflexi s buddy a přidá konkrétní ot
 
 ### UC10: Buddy reaguje ve sdíleném jazyce
 Buddy dává zpětnou vazbu skrz:
-- principy,
+- Konzultantské desatero,
 - role,
 - přepálení nebo nedostatečné využití role,
 - alignment s JIC.
@@ -499,10 +499,10 @@ Pomoci novému expertovi pochopit, co znamená konzultovat pod brandem JIC, a za
 ### Průběh
 1. Expert je uveden do smyslu a poslání JIC.
 2. Pochopí rámec zadání a hranice služby.
-3. Seznámí se s 10 principy konzultování.
+3. Seznámí se s Konzultantským desaterem.
 4. Projde si situativní role konzultanta.
 5. Učí se skrz situace, příklady a dilemata.
-6. Začíná aplikovat role a principy na reálné konzultace.
+6. Začíná aplikovat role a Konzultantské desatero na reálné konzultace.
 7. Vstupuje do opakujícího se cyklu příprava → reflexe → peer learning.
 
 ### Požadovaný výsledek
@@ -571,7 +571,7 @@ Využít kolektivní inteligenci expertů pro lepší judgment a šíření know
 
 ### Průběh
 1. Expert přinese případ.
-2. Případ je popsán skrz kontext, role, principy a dilema.
+2. Případ je popsán skrz kontext, role, Konzultantské desatero a dilema.
 3. Skupina diskutuje:
    - co se dělo,
    - jaké role byly ve hře,
@@ -603,7 +603,7 @@ Tento loop je jedním z nejdůležitějších vzorců, které má produkt ukotvo
 Produkt má poskytovat strukturovaný přístup k:
 - poslání JICu,
 - rámci zadání,
-- 10 principům konzultování,
+- Konzultantskému desateru,
 - situativním rolím,
 - příkladům dobře zvládnuté role a přepálení role.
 
@@ -616,7 +616,7 @@ Produkt má umožnit:
 ### C. Reflexe po konzultaci
 Produkt má umožnit:
 - reflektovat konzultaci,
-- pracovat s principy,
+- pracovat s principy Konzultantského desatera,
 - pracovat s rolemi,
 - reflektovat kalibraci rolí,
 - zaznamenat klíčové učení.
@@ -670,7 +670,7 @@ To potvrzuje, že návaznost a institucionální paměť jsou součástí samotn
 Produkt má pracovat s tím, že kvalita konzultace má více vrstev:
 
 ### 16.1 Kvalita vzhledem k principům
-Byla konzultace vedená v souladu s principy konzultování?
+Byla konzultace vedená v souladu s Konzultantským desaterem?
 
 ### 16.2 Vhodnost zvolených rolí
 Byly zvolené správné situativní role vzhledem k situaci?
@@ -742,7 +742,7 @@ Produkt má:
 
 Produkt bude úspěšný, pokud se v čase začne dít toto:
 
-- experti začnou přirozeně používat jazyk rolí a principů,
+- experti začnou přirozeně používat jazyk rolí a Konzultantského desatera,
 - onboarding expertů bude konzistentnější a méně závislý na ad hoc vysvětlování,
 - experti budou víc reflektovat své konzultace,
 - buddy a konzultační konzilium budou strukturovanější a užitečnější,
@@ -759,7 +759,7 @@ Ověřit, že experti budou používat lehký nástroj pro:
 
 - vědomou přípravu na konzultaci,
 - reflexi uskutečněné konzultace,
-- práci s principy a situativními rolemi.
+- prací s Konzultantským desaterem a situativními rolemi.
 
 ---
 
@@ -767,7 +767,7 @@ Ověřit, že experti budou používat lehký nástroj pro:
 
 ### 1. Základní orientaci
 - poslání JICu a rámec zadání,
-- 10 principů konzultování,
+- Konzultantské desatero,
 - situativní role konzultanta.
 
 ### 2. Přípravu před schůzkou
@@ -776,7 +776,7 @@ Ověřit, že experti budou používat lehký nástroj pro:
 - krátký záměr pro schůzku.
 
 ### 3. Reflexi po konzultaci
-- práce s relevantními principy,
+- práce s relevantními principy Konzultantského desatera,
 - výběr skutečně použitých rolí,
 - reflexe kalibrace role,
 - stručné poučení.
@@ -826,7 +826,7 @@ Jeho cílem je proměnit práci v učení.
 Produkt spojuje:
 
 - poslání JICu a rámec zadání,
-- 10 principů konzultování, :contentReference[oaicite:15]{index=15}
+- Konzultantské desatero, :contentReference[oaicite:15]{index=15}
 - model situativních rolí konzultanta, :contentReference[oaicite:16]{index=16} :contentReference[oaicite:17]{index=17} :contentReference[oaicite:18]{index=18} :contentReference[oaicite:19]{index=19}
 - supervizi uskutečněných konzultací,
 - buddy,

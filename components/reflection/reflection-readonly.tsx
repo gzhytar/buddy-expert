@@ -90,7 +90,7 @@ export function ReflectionReadOnly({ data, principles, roleGroups }: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Principy v centru pozornosti</CardTitle>
+          <CardTitle className="text-lg">Konzultantské desatero v centru pozornosti</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="flex list-none flex-col gap-3 p-0">
