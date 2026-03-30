@@ -29,6 +29,20 @@
       "when": 1774890846715,
       "tag": "0003_little_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774897892472,
+      "tag": "0004_typical_nuke",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774903560561,
+      "tag": "0005_skinny_nomad",
+      "breakpoints": true
     }
   ]
 }

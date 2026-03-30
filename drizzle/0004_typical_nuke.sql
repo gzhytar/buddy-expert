@@ -1,0 +1,1 @@
+ALTER TABLE "reflection_sessions" ADD COLUMN "assistant_state" text;

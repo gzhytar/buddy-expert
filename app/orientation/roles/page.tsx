@@ -31,10 +31,7 @@ export default async function OrientationRolesPage() {
           Situční role — konzultantské karty
         </h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          Šestnáct rolí ve čtyřech fázích podle pracovní verze JIC karet. Při reflexi zaznamenáváte, zda byla role{" "}
-          <strong className="text-foreground">podužitá</strong>,{" "}
-          <strong className="text-foreground">vyvážená</strong> nebo{" "}
-          <strong className="text-foreground">přepálená</strong>.
+          Šestnáct rolí ve čtyřech fázích podle pracovní verze JIC karet.
         </p>
         {selfEval && !selfEval.isComplete ? (
           <OrientationRoleSelfEvalNudge
@@ -62,9 +59,6 @@ export default async function OrientationRolesPage() {
               >
                 {g.phaseLabel}
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Fáze podle sady karet JIC
-              </p>
             </div>
             <ul className="grid list-none gap-4 p-0 sm:grid-cols-1">
               {g.roles.map((r, i) => (
@@ -75,7 +69,7 @@ export default async function OrientationRolesPage() {
                     showSelfEval={userId != null}
                     initialSelfEvalSentiment={
                       userId && selfEval
-                        ? (selfEval.mapByRoleId[r.id] ?? null)
+                        ? selfEval.mapByRoleId[r.id] ?? null
                         : null
                     }
                   />

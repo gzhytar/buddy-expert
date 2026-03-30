@@ -16,6 +16,8 @@ export type RoleSelfEvalSummary = {
   isComplete: boolean;
   /** Názvy rolí ve stavu „chci se zlepšovat“, seřazené jako katalog. */
   focusRoleNames: string[];
+  /** Stejné pořadí jako `focusRoleNames` — id rolí ve stavu focus_improve. */
+  focusRoleIds: string[];
   mapByRoleId: Record<string, RoleSelfEvalSentiment>;
 };
 
@@ -45,31 +47,36 @@ export async function getRoleSelfEvalSummaryForUser(
   const evaluatedCount = ids.filter((id) => mapByRoleId[id] !== undefined).length;
   const isComplete = totalRoles > 0 && evaluatedCount === totalRoles;
 
-  const focusRoleNames =
+  const focusRows =
     totalRoles === 0
       ? []
-      : (
-          await db
-            .select({ name: consultingRoles.name })
-            .from(userConsultingRoleSelfEvals)
-            .innerJoin(
-              consultingRoles,
-              eq(userConsultingRoleSelfEvals.roleId, consultingRoles.id),
-            )
-            .where(
-              and(
-                eq(userConsultingRoleSelfEvals.userId, userId),
-                eq(userConsultingRoleSelfEvals.sentiment, "focus_improve"),
-              ),
-            )
-            .orderBy(asc(consultingRoles.phaseKey), asc(consultingRoles.sortOrder))
-        ).map((r) => r.name);
+      : await db
+          .select({
+            id: consultingRoles.id,
+            name: consultingRoles.name,
+          })
+          .from(userConsultingRoleSelfEvals)
+          .innerJoin(
+            consultingRoles,
+            eq(userConsultingRoleSelfEvals.roleId, consultingRoles.id),
+          )
+          .where(
+            and(
+              eq(userConsultingRoleSelfEvals.userId, userId),
+              eq(userConsultingRoleSelfEvals.sentiment, "focus_improve"),
+            ),
+          )
+          .orderBy(asc(consultingRoles.phaseKey), asc(consultingRoles.sortOrder));
+
+  const focusRoleIds = focusRows.map((r) => r.id);
+  const focusRoleNames = focusRows.map((r) => r.name);
 
   return {
     totalRoles,
     evaluatedCount,
     isComplete,
     focusRoleNames,
+    focusRoleIds,
     mapByRoleId,
   };
 }

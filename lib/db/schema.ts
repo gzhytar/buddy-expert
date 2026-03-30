@@ -172,6 +172,8 @@ export const preparationSessions = pgTable("preparation_sessions", {
   /** Plánovaný čas schůzky (ISO) */
   occurredAt: text("occurred_at"),
   focusNote: text("focus_note"),
+  /** JSON stav asistenta přípravy (volitelný; např. vygenerované reflexivní otázky) */
+  preparationAssistantState: text("preparation_assistant_state"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
@@ -209,6 +211,8 @@ export const reflectionSessions = pgTable("reflection_sessions", {
   alignmentLikert: text("alignment_likert"),
   alignmentNote: text("alignment_note"),
   learningNote: text("learning_note"),
+  /** JSON stav strukturovacího asistenta (volitelný, v1 schema v kódu) */
+  assistantState: text("assistant_state"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

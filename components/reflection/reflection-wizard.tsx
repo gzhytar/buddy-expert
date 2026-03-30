@@ -1,22 +1,30 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, useTransition } from "react";
+
+import { PrincipleIllustration } from "@/components/principles/principle-illustration";
+import { OriginalIntentPanel } from "@/components/reflection/original-intent-panel";
+import { ReflectionAssistantPanel } from "@/components/reflection/reflection-assistant-panel";
+import { RoleSelector } from "@/components/roles/role-selector";
+import { Button } from "@/components/ui/button";
+import { DatetimeLocalInput } from "@/components/ui/datetime-local-input";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { Principle } from "@/lib/db/schema";
+import {
+  isoFromDatetimeLocalInput,
+  toDatetimeLocalValue,
+} from "@/lib/datetime-local";
+import type { ReflectionAssistantStateV1 } from "@/lib/reflection/assistant-state";
 import {
   completeReflection,
   saveReflectionDraft,
   type ReflectionDetail,
 } from "@/lib/reflection/actions";
-import type { Principle } from "@/lib/db/schema";
 import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { PrincipleIllustration } from "@/components/principles/principle-illustration";
-import { RoleSelector } from "@/components/roles/role-selector";
-import { OriginalIntentPanel } from "@/components/reflection/original-intent-panel";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -26,12 +34,17 @@ const STEPS = [
   "Poznámka k učení",
 ] as const;
 
-function toDatetimeLocalValue(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function calibrationRecordFromProposal(
+  roles: {
+    roleId: string;
+    calibration: "underused" | "balanced" | "overused";
+  }[],
+): Record<string, "underused" | "balanced" | "overused"> {
+  const m: Record<string, "underused" | "balanced" | "overused"> = {};
+  for (const r of roles) {
+    m[r.roleId] = r.calibration;
+  }
+  return m;
 }
 
 type WaitingPrepRow = {
@@ -87,16 +100,17 @@ export function ReflectionWizard({
   const [linkPreparationId, setLinkPreparationId] = useState(
     () => initial.session.preparationId ?? "",
   );
+  const [assistantState, setAssistantState] =
+    useState<ReflectionAssistantStateV1 | null>(
+      () => initial.assistantState,
+    );
 
   const roleNameById = Object.fromEntries(
     roleGroups.flatMap((g) => g.roles.map((r) => [r.id, r.name])),
   );
 
   const buildPayload = useCallback(() => {
-    const occurredAt =
-      occurredAtLocal.trim() === ""
-        ? undefined
-        : new Date(occurredAtLocal).toISOString();
+    const occurredAt = isoFromDatetimeLocalInput(occurredAtLocal);
     const roles = selectedRoleIds.map((roleId) => ({
       roleId,
       calibration: calibrationByRole[roleId] ?? "balanced",
@@ -109,6 +123,7 @@ export function ReflectionWizard({
       principleIds,
       roles,
       learningNote: learningNote.trim() || undefined,
+      ...(assistantState ? { assistantState } : {}),
     };
   }, [
     reflectionId,
@@ -119,17 +134,40 @@ export function ReflectionWizard({
     selectedRoleIds,
     calibrationByRole,
     learningNote,
+    assistantState,
   ]);
 
   const saveDraft = useCallback(() => {
     return saveReflectionDraft(buildPayload());
   }, [buildPayload]);
 
+  const applyAssistantProposal = useCallback(
+    (p: {
+      principleIds: string[];
+      roles: {
+        roleId: string;
+        calibration: "underused" | "balanced" | "overused";
+      }[];
+      learningNote: string;
+    }) => {
+      setPrincipleIds(p.principleIds);
+      setSelectedRoleIds(p.roles.map((r) => r.roleId));
+      setCalibrationByRole(calibrationRecordFromProposal(p.roles));
+      setLearningNote(p.learningNote);
+    },
+    [],
+  );
+
   const togglePrinciple = (id: string, checked: boolean) => {
     setPrincipleIds((prev) =>
       checked ? [...prev, id] : prev.filter((x) => x !== id),
     );
   };
+
+  useEffect(() => {
+    setAssistantState(initial.assistantState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- synchronizace jen po obnovení dat ze serveru
+  }, [initial.session.updatedAt]);
 
   const toggleRole = (id: string, checked: boolean) => {
     setSelectedRoleIds((prev) => {
@@ -213,7 +251,7 @@ export function ReflectionWizard({
           variant="outline"
           size="sm"
           disabled={pending}
-          onClick={() => onSaveDraftClick()}
+          onClick={onSaveDraftClick}
         >
           Uložit rozpracované
         </Button>
@@ -273,6 +311,15 @@ export function ReflectionWizard({
         />
       ) : null}
 
+      <ReflectionAssistantPanel
+        reflectionId={reflectionId}
+        preparation={initial.preparation}
+        roleGroups={roleGroups}
+        state={assistantState}
+        onStateChange={setAssistantState}
+        onApplyProposal={applyAssistantProposal}
+      />
+
       <section
         className="animate-step-in space-y-6"
         aria-live="polite"
@@ -318,9 +365,8 @@ export function ReflectionWizard({
             </div>
             <div className="space-y-2">
               <Label htmlFor="when">Kdy proběhla</Label>
-              <Input
+              <DatetimeLocalInput
                 id="when"
-                type="datetime-local"
                 value={occurredAtLocal}
                 onChange={(e) => setOccurredAtLocal(e.target.value)}
               />
@@ -418,17 +464,17 @@ export function ReflectionWizard({
           type="button"
           variant="ghost"
           disabled={pending || step === 0}
-          onClick={() => goBack()}
+          onClick={goBack}
         >
           Zpět
         </Button>
         <div className="flex gap-2">
           {step < STEPS.length - 1 ? (
-            <Button type="button" disabled={pending} onClick={() => goNext()}>
+            <Button type="button" disabled={pending} onClick={goNext}>
               {pending ? "Ukládání…" : "Další"}
             </Button>
           ) : (
-            <Button type="button" disabled={pending} onClick={() => onComplete()}>
+            <Button type="button" disabled={pending} onClick={onComplete}>
               {pending ? "Dokončování…" : "Označit jako dokončené"}
             </Button>
           )}

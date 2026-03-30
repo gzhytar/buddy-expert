@@ -1,18 +1,29 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { ChevronDown, Minus, Plus } from "lucide-react";
+import type { ReactNode } from "react";
+
+import { PrincipleIllustration } from "@/components/principles/principle-illustration";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { roleSummaryForList } from "@/lib/consulting-roles/card-content";
 import type { ConsultingRole } from "@/lib/db/schema";
 import { ROLE_IMAGE_MISSING_HINT } from "@/lib/data/role-images";
 import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
-import { PrincipleIllustration } from "@/components/principles/principle-illustration";
-import { roleSummaryForList } from "@/lib/consulting-roles/card-content";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type Calibration = "underused" | "balanced" | "overused";
+
+const REFLECTION_CALIBRATION_OPTIONS: readonly {
+  value: Calibration;
+  label: string;
+}[] = [
+  { value: "underused", label: "podhodnocená" },
+  { value: "balanced", label: "vyvážená" },
+  { value: "overused", label: "přehřátá" },
+];
 
 type ReflectionProps = {
   mode: "reflection";
@@ -32,18 +43,66 @@ type PreparationProps = {
     roleId: string,
     polarity: "strengthen" | "downregulate" | null,
   ) => void;
+  /** Dokončené sebeohodnocení + neprázdné → dvě sekce (zaměření / ostatní). */
+  focusPartition?: { focusRoleIds: string[] };
 };
 
 export type RoleSelectorProps = ReflectionProps | PreparationProps;
 
 const spring = { type: "spring" as const, stiffness: 420, damping: 28 };
 
+function splitGroupsByFocus(
+  groups: RolePhaseGroup[],
+  focusIds: Set<string>,
+): { focus: RolePhaseGroup[]; other: RolePhaseGroup[] } {
+  const focus: RolePhaseGroup[] = [];
+  const other: RolePhaseGroup[] = [];
+  for (const g of groups) {
+    const fr = g.roles.filter((r) => focusIds.has(r.id));
+    const or = g.roles.filter((r) => !focusIds.has(r.id));
+    if (fr.length > 0) {
+      focus.push({ ...g, roles: fr });
+    }
+    if (or.length > 0) {
+      other.push({ ...g, roles: or });
+    }
+  }
+  return { focus, other };
+}
+
+function renderPreparationGroups(
+  groups: RolePhaseGroup[],
+  props: PreparationProps,
+  reducedMotion: boolean,
+) {
+  const nonEmpty = groups.filter((g) => g.roles.length > 0);
+  if (nonEmpty.length === 0) {
+    return (
+      <p className="px-2 py-4 text-sm text-muted-foreground">
+        V této části zatím nejsou žádné role.
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-6">
+      {nonEmpty.map((g) => (
+        <div key={g.phaseKey} className="space-y-3">
+          <h2 className="font-display text-lg font-semibold">{g.phaseLabel}</h2>
+          <ul className="list-none space-y-3 p-0">
+            {renderRoleRows(g.roles, props, reducedMotion)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function RoleRowShell({
   children,
   reducedMotion,
   className,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   reducedMotion: boolean;
   className?: string;
 }) {
@@ -128,11 +187,7 @@ function renderRoleRows(
                   props.onSetCalibration(r.id, v as Calibration)
                 }
               >
-                {[
-                  { value: "underused" as const, label: "podhodnocená" },
-                  { value: "balanced" as const, label: "vyvážená" },
-                  { value: "overused" as const, label: "přehřátá" },
-                ].map((opt) => (
+                {REFLECTION_CALIBRATION_OPTIONS.map((opt) => (
                   <div key={opt.value} className="flex items-center gap-2">
                     <RadioGroupItem
                       value={opt.value}
@@ -157,7 +212,7 @@ function renderRoleRows(
   return roles.map((r) => {
     const polarity = props.polarityByRole[r.id];
     const roleBlurb = roleSummaryForList(r);
-    
+
     return (
       <RoleRowShell
         key={r.id}
@@ -246,8 +301,72 @@ function renderRoleRows(
   });
 }
 
+const detailsShell =
+  "rounded-xl border border-border/80 bg-card/40 shadow-sm [&[open]>summary_.prep-chevron]:rotate-180";
+const summaryShell =
+  "flex cursor-pointer list-none items-center gap-2 rounded-xl px-4 py-3 font-display text-lg font-semibold tracking-tight text-foreground outline-none transition-colors duration-200 hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:focus-visible:ring-0 motion-reduce:focus-visible:ring-offset-0 [&::-webkit-details-marker]:hidden";
+const chevronClassName =
+  "prep-chevron size-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-out motion-reduce:transition-none";
+
+function PreparationPhaseDetails({
+  title,
+  subtitle,
+  defaultOpen,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <details open={defaultOpen} className={detailsShell}>
+      <summary className={summaryShell}>
+        <ChevronDown className={chevronClassName} aria-hidden />
+        <span>{title}</span>
+        {subtitle ? (
+          <span className="font-sans text-xs font-normal text-muted-foreground">
+            {subtitle}
+          </span>
+        ) : null}
+      </summary>
+      <div className="border-t border-border/60 px-2 pb-4 pt-2 sm:px-3">
+        {children}
+      </div>
+    </details>
+  );
+}
+
 export function RoleSelector(props: RoleSelectorProps) {
   const reducedMotion = useReducedMotion() ?? false;
+
+  if (
+    props.mode === "preparation" &&
+    props.focusPartition &&
+    props.focusPartition.focusRoleIds.length > 0
+  ) {
+    const focusSet = new Set(props.focusPartition.focusRoleIds);
+    const { focus, other } = splitGroupsByFocus(props.roleGroups, focusSet);
+    const hasOther = other.some((g) => g.roles.length > 0);
+
+    return (
+      <div className="space-y-5">
+        <PreparationPhaseDetails
+          defaultOpen
+          title="Role, ve kterých chcete růst"
+          subtitle="(z orientace)"
+        >
+          {renderPreparationGroups(focus, props, reducedMotion)}
+        </PreparationPhaseDetails>
+
+        {hasOther ? (
+          <PreparationPhaseDetails title="Ostatní situační role">
+            {renderPreparationGroups(other, props, reducedMotion)}
+          </PreparationPhaseDetails>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

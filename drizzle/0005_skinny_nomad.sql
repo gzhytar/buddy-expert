@@ -1,0 +1,1 @@
+ALTER TABLE "preparation_sessions" ADD COLUMN "preparation_assistant_state" text;

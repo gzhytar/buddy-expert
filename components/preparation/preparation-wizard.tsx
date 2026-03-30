@@ -5,33 +5,41 @@ import {
   savePreparationDraft,
   type PreparationDetail,
 } from "@/lib/preparation/actions";
+import {
+  PreparationReflectiveQuestionsPanel,
+  type PreparationReflectiveGeneratePayload,
+} from "@/components/preparation/preparation-reflective-questions-panel";
+import { parsePreparationAssistantState } from "@/lib/preparation/preparation-assistant-state";
 import type { ReflectionLearningEcho } from "@/lib/reflection/actions";
 import { LastReflectionLearningEcho } from "@/components/preparation/last-reflection-learning-echo";
 import type { RolePhaseGroup } from "@/lib/queries/orientation-types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { DatetimeLocalInput } from "@/components/ui/datetime-local-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  PreparationSelfEvalContextHint,
+  type PreparationRoleSelfEvalSnapshot,
+} from "@/components/preparation/preparation-self-eval-context-hint";
 import { RoleSelector } from "@/components/roles/role-selector";
+import {
+  isoFromDatetimeLocalInput,
+  toDatetimeLocalValue,
+} from "@/lib/datetime-local";
 
 const STEPS = ["Konzultace", "Role", "Záměr"] as const;
-
-function toDatetimeLocalValue(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 type Props = {
   preparationId: string;
   initial: PreparationDetail;
   roleGroups: RolePhaseGroup[];
   learningEcho: ReflectionLearningEcho | null;
+  /** Souhrn sebeohodnocení rolí; null pokud nepřihlášen (nemělo by nastat). */
+  roleSelfEval: PreparationRoleSelfEvalSnapshot | null;
 };
 
 export function PreparationWizard({
@@ -39,6 +47,7 @@ export function PreparationWizard({
   initial,
   roleGroups,
   learningEcho,
+  roleSelfEval,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -81,11 +90,31 @@ export function PreparationWizard({
     }));
   }, [polarityByRole]);
 
+  const initialPrepAssistant = useMemo(
+    () =>
+      parsePreparationAssistantState(
+        initial.session.preparationAssistantState,
+      ),
+    [initial.session.preparationAssistantState],
+  );
+
+  const assistantPanelKey = useMemo(
+    () =>
+      `${preparationId}-${initial.session.preparationAssistantState ?? ""}`,
+    [preparationId, initial.session.preparationAssistantState],
+  );
+
+  const getAssistantGeneratePayload =
+    useCallback((): PreparationReflectiveGeneratePayload => {
+      return {
+        roles: rolesPayload(),
+        consultationLabel: consultationLabel.trim() || undefined,
+        occurredAt: isoFromDatetimeLocalInput(occurredAtLocal),
+      };
+    }, [occurredAtLocal, consultationLabel, rolesPayload]);
+
   const buildPayload = useCallback(() => {
-    const occurredAt =
-      occurredAtLocal.trim() === ""
-        ? undefined
-        : new Date(occurredAtLocal).toISOString();
+    const occurredAt = isoFromDatetimeLocalInput(occurredAtLocal);
     return {
       id: preparationId,
       consultationLabel: consultationLabel.trim() || undefined,
@@ -162,7 +191,7 @@ export function PreparationWizard({
           variant="outline"
           size="sm"
           disabled={pending}
-          onClick={() => onSaveDraftClick()}
+          onClick={onSaveDraftClick}
         >
           Uložit rozpracované
         </Button>
@@ -210,12 +239,12 @@ export function PreparationWizard({
         aria-live="polite"
         aria-label={STEPS[step]}
       >
+        {(step === 0 || step === 2) && roleSelfEval ? (
+          <PreparationSelfEvalContextHint roleSelfEval={roleSelfEval} />
+        ) : null}
+
         {step === 0 ? (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Volitelný kontext — stejně jako u reflexe nepoužíváme CRM. Pojmenujte
-              schůzku způsobem, který vám dává smysl.
-            </p>
             <div className="space-y-2">
               <Label htmlFor="prep-label">Název konzultace</Label>
               <Input
@@ -228,9 +257,8 @@ export function PreparationWizard({
             </div>
             <div className="space-y-2">
               <Label htmlFor="prep-when">Plánovaný čas</Label>
-              <Input
+              <DatetimeLocalInput
                 id="prep-when"
-                type="datetime-local"
                 value={occurredAtLocal}
                 onChange={(e) => setOccurredAtLocal(e.target.value)}
               />
@@ -250,7 +278,22 @@ export function PreparationWizard({
               roleGroups={roleGroups}
               polarityByRole={polarityByRole}
               onSetPolarity={setPolarity}
+              focusPartition={
+                roleSelfEval != null &&
+                roleSelfEval.isComplete &&
+                roleSelfEval.focusRoleIds.length > 0
+                  ? { focusRoleIds: roleSelfEval.focusRoleIds }
+                  : undefined
+              }
             />
+            <p className="text-center text-xs text-muted-foreground">
+              <Link
+                href="/orientation/roles"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                Upravit sebeohodnocení rolí v orientaci
+              </Link>
+            </p>
           </div>
         ) : null}
 
@@ -260,6 +303,16 @@ export function PreparationWizard({
               Krátký behaviorální záměr nebo varování pro sebe — uvidíte ho znovu
               při reflexi.
             </p>
+            <PreparationReflectiveQuestionsPanel
+              key={assistantPanelKey}
+              preparationId={preparationId}
+              initialAssistant={initialPrepAssistant}
+              roleCount={Object.keys(polarityByRole).length}
+              saveDraft={saveDraft}
+              getGeneratePayload={getAssistantGeneratePayload}
+              focusNote={focusNote}
+              onFocusNoteChange={setFocusNote}
+            />
             <div className="space-y-2">
               <Label htmlFor="prep-focus">Záměr / fokus</Label>
               <Textarea
@@ -280,17 +333,17 @@ export function PreparationWizard({
           type="button"
           variant="ghost"
           disabled={pending || step === 0}
-          onClick={() => goBack()}
+          onClick={goBack}
         >
           Zpět
         </Button>
         <div className="flex gap-2">
           {step < STEPS.length - 1 ? (
-            <Button type="button" disabled={pending} onClick={() => goNext()}>
+            <Button type="button" disabled={pending} onClick={goNext}>
               {pending ? "Ukládání…" : "Další"}
             </Button>
           ) : (
-            <Button type="button" disabled={pending} onClick={() => onComplete()}>
+            <Button type="button" disabled={pending} onClick={onComplete}>
               {pending ? "Ukládání…" : "Dokončit přípravu"}
             </Button>
           )}

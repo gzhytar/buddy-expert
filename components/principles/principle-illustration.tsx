@@ -10,8 +10,8 @@ const DEFAULT_MISSING_FILE_HINT =
 type Props = {
   src: string | null | undefined;
   alt: string;
-  /** card = samostatný blok; sidebar = úzký sloupec u textu; inline = náhled ve wizardu */
-  variant?: "card" | "sidebar" | "inline";
+  /** card = samostatný blok; sidebar = úzký sloupec u textu; inline = náhled ve wizardu; hero = plocha na pozadí (object-cover) */
+  variant?: "card" | "sidebar" | "inline" | "hero";
   /** Nižší min. výška u sidebar — kompaktní karty (např. role) */
   density?: "default" | "compact";
   className?: string;
@@ -48,17 +48,24 @@ export function PrincipleIllustration({
             "aspect-[4/3] w-full min-h-[140px] sm:min-h-[180px]",
           variant === "sidebar" && cn("h-full w-full", sidebarPlaceholderMin),
           variant === "inline" && "size-20 shrink-0 sm:size-24",
+          variant === "hero" &&
+            "h-full w-full min-h-0 rounded-none border-0 bg-gradient-to-br from-muted/70 via-muted/45 to-muted/25 dark:from-muted/50 dark:via-muted/30 dark:to-muted/15",
           className,
         )}
-        role="img"
-        aria-label={alt}
+        role={variant === "hero" ? undefined : "img"}
+        aria-hidden={variant === "hero" ? true : undefined}
+        aria-label={variant === "hero" ? undefined : alt}
       >
-        <ImageIcon className="size-8 opacity-40" aria-hidden />
-        <span className="max-w-[12rem] px-2 text-[11px] leading-snug">
-          {src && broken
-            ? "Obrázek se nepodařilo načíst."
-            : missingFileHint}
-        </span>
+        {variant === "hero" ? null : (
+          <>
+            <ImageIcon className="size-8 opacity-40" aria-hidden />
+            <span className="max-w-[12rem] px-2 text-[11px] leading-snug">
+              {src && broken
+                ? "Obrázek se nepodařilo načíst."
+                : missingFileHint}
+            </span>
+          </>
+        )}
       </div>
     );
   }
@@ -72,13 +79,16 @@ export function PrincipleIllustration({
           cn("flex w-full items-center justify-center", sidebarMin),
         variant === "inline" &&
           "flex size-20 shrink-0 items-center justify-center sm:size-24",
+        variant === "hero" &&
+          "relative h-full w-full rounded-none border-0 bg-muted/25 shadow-none dark:bg-card/20",
         className,
       )}
+      aria-hidden={variant === "hero" ? true : undefined}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- potřebujeme spolehlivý onError bez optimalizátoru */}
       <img
         src={src}
-        alt={alt}
+        alt={variant === "hero" ? "" : alt}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         onError={() => setBroken(true)}
@@ -88,6 +98,7 @@ export function PrincipleIllustration({
           variant === "sidebar" && "max-h-full w-full object-contain object-center p-2",
           variant === "inline" &&
             "max-h-[5.5rem] w-full object-contain object-center p-1",
+          variant === "hero" && "h-full w-full object-cover object-center",
         )}
       />
     </div>

@@ -14,12 +14,37 @@ import {
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
+  parseAssistantState,
+  reflectionAssistantStateV1Schema,
+  serializeAssistantState,
+  type ReflectionAssistantStateV1,
+} from "@/lib/reflection/assistant-state";
+import {
   reflectionCompletePayloadSchema,
   reflectionDraftPayloadSchema,
 } from "./validation";
 
-function nowIso() {
+const reflectionDraftWithAssistantSchema = reflectionDraftPayloadSchema.extend({
+  assistantState: reflectionAssistantStateV1Schema.optional(),
+});
+
+function nowIso(): string {
   return new Date().toISOString();
+}
+
+function partitionPreparationRolePolarities(
+  rows: { roleId: string; type: string }[],
+): { strengthenRoleIds: string[]; downregulateRoleIds: string[] } {
+  const strengthenRoleIds: string[] = [];
+  const downregulateRoleIds: string[] = [];
+  for (const r of rows) {
+    if (r.type === "strengthen") {
+      strengthenRoleIds.push(r.roleId);
+    } else {
+      downregulateRoleIds.push(r.roleId);
+    }
+  }
+  return { strengthenRoleIds, downregulateRoleIds };
 }
 
 export type PreparationPlanSummary = {
@@ -97,6 +122,8 @@ export type ReflectionDetail = {
   principleIds: string[];
   roles: { roleId: string; calibration: string }[];
   preparation: PreparationPlanSummary | null;
+  /** Parsovaný stav strukturovacího asistenta; null pokud chybí nebo je neplatný */
+  assistantState: ReflectionAssistantStateV1 | null;
 };
 
 export async function getReflectionForUser(
@@ -151,12 +178,8 @@ export async function getReflectionForUser(
         })
         .from(preparationRoles)
         .where(eq(preparationRoles.preparationId, prepRow.id));
-      const strengthenRoleIds: string[] = [];
-      const downregulateRoleIds: string[] = [];
-      for (const r of prRoles) {
-        if (r.type === "strengthen") strengthenRoleIds.push(r.roleId);
-        else downregulateRoleIds.push(r.roleId);
-      }
+      const { strengthenRoleIds, downregulateRoleIds } =
+        partitionPreparationRolePolarities(prRoles);
       preparation = {
         id: prepRow.id,
         consultationLabel: prepRow.consultationLabel,
@@ -176,6 +199,7 @@ export async function getReflectionForUser(
       calibration: r.calibration,
     })),
     preparation,
+    assistantState: parseAssistantState(row.assistantState),
   };
 }
 
@@ -237,7 +261,7 @@ export async function saveReflectionDraft(
     return { ok: false, error: "Neautorizováno" };
   }
 
-  const parsed = reflectionDraftPayloadSchema.safeParse(raw);
+  const parsed = reflectionDraftWithAssistantSchema.safeParse(raw);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Neplatné" };
   }
@@ -286,15 +310,26 @@ export async function saveReflectionDraft(
   }
 
   const t = nowIso();
+  const sessionUpdate: {
+    preparationId: string | null;
+    consultationLabel: string | null;
+    occurredAt: string | null;
+    learningNote: string | null;
+    updatedAt: string;
+    assistantState?: string | null;
+  } = {
+    preparationId,
+    consultationLabel: data.consultationLabel?.trim() || null,
+    occurredAt: data.occurredAt?.trim() || null,
+    learningNote: data.learningNote?.trim() || null,
+    updatedAt: t,
+  };
+  if (data.assistantState !== undefined) {
+    sessionUpdate.assistantState = serializeAssistantState(data.assistantState);
+  }
   await db
     .update(reflectionSessions)
-    .set({
-      preparationId,
-      consultationLabel: data.consultationLabel?.trim() || null,
-      occurredAt: data.occurredAt?.trim() || null,
-      learningNote: data.learningNote?.trim() || null,
-      updatedAt: t,
-    })
+    .set(sessionUpdate)
     .where(eq(reflectionSessions.id, data.id));
 
   await db
